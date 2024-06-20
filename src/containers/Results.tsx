@@ -4,8 +4,7 @@ import useParticipants from "../hooks/useParticipants.ts";
 import useDisciplines from "../hooks/useDisciplines.ts";
 
 function Results() {
-    const { results, isLoading, page, setPage, create, update, remove } =
-        useResults();
+    const { results, isLoading, create, update, remove } = useResults();
     const { participants } = useParticipants();
     const { disciplines } = useDisciplines();
     return (

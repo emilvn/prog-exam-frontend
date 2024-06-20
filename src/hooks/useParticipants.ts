@@ -13,8 +13,6 @@ function useParticipants() {
         ParticipantWithDisciplines[]
     >([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [page, setPage] = useState(0);
-    const PAGE_SIZE = 10;
 
     const participantDataService = new ParticipantDataService();
 
@@ -36,10 +34,7 @@ function useParticipants() {
     };
 
     const fetchParticipants = () => {
-        return participantDataService.getAll([
-            { key: "size", value: PAGE_SIZE },
-            { key: "page", value: page }
-        ]);
+        return participantDataService.getAll();
     };
 
     const fetchParticipantDisciplines = (participant: Participant) => {
@@ -73,7 +68,7 @@ function useParticipants() {
                 }
             })
             .finally(() => setIsLoading(false));
-    }, [page, PAGE_SIZE]);
+    }, []);
 
     const create = async (participant: ParticipantDTO) => {
         try {
@@ -189,9 +184,7 @@ function useParticipants() {
         remove,
         addDiscipline,
         removeDiscipline,
-        isLoading,
-        page,
-        setPage
+        isLoading
     };
 }
 

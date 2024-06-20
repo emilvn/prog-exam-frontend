@@ -8,7 +8,7 @@ interface Discipline {
 
 const newDiscipline: Discipline = {
     name: "",
-    resultType: ResultType.TIME_IN_SECONDS
+    resultType: ResultType.TIME_IN_MILLISECONDS
 };
 
 export type { Discipline };

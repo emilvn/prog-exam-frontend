@@ -6,8 +6,6 @@ import toast from "react-hot-toast";
 function useResults() {
     const [results, setResults] = useState<Result[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [page, setPage] = useState(0);
-    const PAGE_SIZE = 10;
     const dataService = new ResultDataService();
 
     const mapDTOToResult = (dto: ResultDTO): Result => {
@@ -26,10 +24,7 @@ function useResults() {
     };
 
     const fetchResults = () => {
-        return dataService.getAll([
-            { value: PAGE_SIZE, key: "size" },
-            { value: page, key: "page" }
-        ]);
+        return dataService.getAll();
     };
 
     useEffect(() => {
@@ -46,7 +41,7 @@ function useResults() {
             .finally(() => {
                 setIsLoading(false);
             });
-    }, [page, PAGE_SIZE]);
+    }, []);
 
     const getResultsByParticipant = (participantId: number) => {
         return dataService
@@ -122,8 +117,6 @@ function useResults() {
     return {
         results,
         isLoading,
-        page,
-        setPage,
         create,
         update,
         remove,

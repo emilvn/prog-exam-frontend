@@ -24,7 +24,7 @@ function NavButton({
             onClick={onClick}
         >
             <button
-                className={`${selected ? "cursor-default bg-sky-800" : "cursor-pointer bg-sky-500 hover:bg-sky-800"} font-semibold px-4 py-3 transition-colors"`}
+                className={`${selected ? "bg-sky-800" : "bg-sky-500 hover:bg-sky-800"} font-semibold px-4 py-3 transition-colors cursor-pointer"`}
             >
                 {children}
             </button>
@@ -55,7 +55,7 @@ function ParticipantSearch({ setSearch, search }: ParticipantSearchProps) {
                     setSearch(searchString);
                 }
             }}
-            className="border rounded p-2 text-black mr-8"
+            className="border rounded p-2 text-black mx-8"
             placeholder="Søg efter deltager..."
         />
     );

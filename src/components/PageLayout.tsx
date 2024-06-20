@@ -22,7 +22,7 @@ function PageLayout({ children, search, setSearch }: PageLayoutProps) {
                     </div>
                     <img
                         alt={"logo"}
-                        className="h-32 w-32"
+                        className="h-32 w-32 drop-shadow-xl"
                         src={"/Gold_medal_olympic.svg"}
                     />
                 </div>
