@@ -1,6 +1,7 @@
 import type { Dispatch, PropsWithChildren, SetStateAction } from "react";
 import { Toaster } from "react-hot-toast";
 import NavBar from "./NavBar.tsx";
+import BestResults from "./BestResults.tsx";
 
 interface PageLayoutProps extends PropsWithChildren {
   search: string;
@@ -27,7 +28,12 @@ function PageLayout({ children, search, setSearch }: PageLayoutProps) {
           setSearch={setSearch}
         />
       </header>
-      <main className={"mt-2"}>{children}</main>
+      <main className={"mt-2"}>
+        <div className={"flex gap-4 justify-between w-full max-md:flex-wrap"}>
+          <BestResults />
+          {children}
+        </div>
+      </main>
       <Toaster position="bottom-left" />
     </div>
   );

@@ -497,127 +497,129 @@ function Participants({ search }: ParticipantsProps) {
   }, [sortColumn, sortOrder]);
 
   return (
-    <div>
+    <>
       <ShowIf condition={isLoading}>
         <div className={"flex justify-center items-center w-full h-96"}>
           <LoadingSpinner />
         </div>
       </ShowIf>
       <ShowIf condition={!isLoading}>
-        <div className={"p-4 flex items-center justify-between"}>
-          <div className={"flex items-end gap-2"}>
-            <h1 className={"text-2xl font-semibold"}>Deltagere</h1>
-            <span className={"text-gray-500"}>
-              Viser {filteredParticipants.length} / {participants.length} deltager(e)
-            </span>
+        <div className={"w-full"}>
+          <div className={"p-4 flex items-center justify-between"}>
+            <div className={"flex items-end gap-2"}>
+              <h1 className={"text-2xl font-semibold"}>Deltagere</h1>
+              <span className={"text-gray-500"}>
+                Viser {filteredParticipants.length} / {participants.length} deltager(e)
+              </span>
+            </div>
+            <button
+              className={"bg-green-500 text-white p-2 rounded hover:bg-green-600 transition-colors"}
+              onClick={() => setShowModal(true)}
+              title={"Opret deltager"}
+            >
+              Opret deltager
+            </button>
           </div>
-          <button
-            className={"bg-green-500 text-white p-2 rounded hover:bg-green-600 transition-colors"}
-            onClick={() => setShowModal(true)}
-            title={"Opret deltager"}
-          >
-            Opret deltager
-          </button>
-        </div>
-        <table className="w-full">
-          <thead className="bg-sky-300 text-white text-left">
-            <tr>
-              <th
-                className={"p-1 cursor-pointer select-none"}
-                onClick={() => {
-                  setSortColumn("name");
-                  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                }}
-              >
-                Navn
-                {sortColumn === "name" && sortOrder === "asc" && (
-                  <MdKeyboardArrowUp className={"inline-block"} />
-                )}
-                {sortColumn === "name" && sortOrder === "desc" && (
-                  <MdKeyboardArrowDown className={"inline-block"} />
-                )}
-              </th>
-              <th
-                className={"p-1 cursor-pointer select-none"}
-                onClick={() => {
-                  setSortColumn("isMale");
-                  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                }}
-              >
-                Køn
-                {sortColumn === "isMale" && sortOrder === "asc" && (
-                  <MdKeyboardArrowUp className={"inline-block"} />
-                )}
-                {sortColumn === "isMale" && sortOrder === "desc" && (
-                  <MdKeyboardArrowDown className={"inline-block"} />
-                )}
-              </th>
-              <th
-                className={"p-1 cursor-pointer select-none"}
-                onClick={() => {
-                  setSortColumn("birthDate");
-                  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                }}
-              >
-                Født
-                {sortColumn === "birthDate" && sortOrder === "asc" && (
-                  <MdKeyboardArrowUp className={"inline-block"} />
-                )}
-                {sortColumn === "birthDate" && sortOrder === "desc" && (
-                  <MdKeyboardArrowDown className={"inline-block"} />
-                )}
-              </th>
-              <th
-                className={"p-1 cursor-pointer select-none"}
-                onClick={() => {
-                  setSortColumn("birthDate");
-                  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                }}
-              >
-                Aldersgruppe
-                {sortColumn === "birthDate" && sortOrder === "asc" && (
-                  <MdKeyboardArrowUp className={"inline-block"} />
-                )}
-                {sortColumn === "birthDate" && sortOrder === "desc" && (
-                  <MdKeyboardArrowDown className={"inline-block"} />
-                )}
-              </th>
-              <th
-                className={"p-1 cursor-pointer select-none"}
-                onClick={() => {
-                  setSortColumn("club");
-                  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                }}
-              >
-                Klub
-                {sortColumn === "club" && sortOrder === "asc" && (
-                  <MdKeyboardArrowUp className={"inline-block"} />
-                )}
-                {sortColumn === "club" && sortOrder === "desc" && (
-                  <MdKeyboardArrowDown className={"inline-block"} />
-                )}
-              </th>
-              <th className={"p-1"}></th>
-            </tr>
-          </thead>
+          <table className="w-full">
+            <thead className="bg-sky-300 text-white text-left">
+              <tr>
+                <th
+                  className={"p-1 cursor-pointer select-none"}
+                  onClick={() => {
+                    setSortColumn("name");
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                  }}
+                >
+                  Navn
+                  {sortColumn === "name" && sortOrder === "asc" && (
+                    <MdKeyboardArrowUp className={"inline-block"} />
+                  )}
+                  {sortColumn === "name" && sortOrder === "desc" && (
+                    <MdKeyboardArrowDown className={"inline-block"} />
+                  )}
+                </th>
+                <th
+                  className={"p-1 cursor-pointer select-none"}
+                  onClick={() => {
+                    setSortColumn("isMale");
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                  }}
+                >
+                  Køn
+                  {sortColumn === "isMale" && sortOrder === "asc" && (
+                    <MdKeyboardArrowUp className={"inline-block"} />
+                  )}
+                  {sortColumn === "isMale" && sortOrder === "desc" && (
+                    <MdKeyboardArrowDown className={"inline-block"} />
+                  )}
+                </th>
+                <th
+                  className={"p-1 cursor-pointer select-none"}
+                  onClick={() => {
+                    setSortColumn("birthDate");
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                  }}
+                >
+                  Født
+                  {sortColumn === "birthDate" && sortOrder === "asc" && (
+                    <MdKeyboardArrowUp className={"inline-block"} />
+                  )}
+                  {sortColumn === "birthDate" && sortOrder === "desc" && (
+                    <MdKeyboardArrowDown className={"inline-block"} />
+                  )}
+                </th>
+                <th
+                  className={"p-1 cursor-pointer select-none"}
+                  onClick={() => {
+                    setSortColumn("birthDate");
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                  }}
+                >
+                  Aldersgruppe
+                  {sortColumn === "birthDate" && sortOrder === "asc" && (
+                    <MdKeyboardArrowUp className={"inline-block"} />
+                  )}
+                  {sortColumn === "birthDate" && sortOrder === "desc" && (
+                    <MdKeyboardArrowDown className={"inline-block"} />
+                  )}
+                </th>
+                <th
+                  className={"p-1 cursor-pointer select-none"}
+                  onClick={() => {
+                    setSortColumn("club");
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                  }}
+                >
+                  Klub
+                  {sortColumn === "club" && sortOrder === "asc" && (
+                    <MdKeyboardArrowUp className={"inline-block"} />
+                  )}
+                  {sortColumn === "club" && sortOrder === "desc" && (
+                    <MdKeyboardArrowDown className={"inline-block"} />
+                  )}
+                </th>
+                <th className={"p-1"}></th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {filteredParticipants.map((participant) => (
-              <ParticipantRow
-                key={participant.id}
-                participant={participant}
-                onEditClick={(participant) => {
-                  setSelectedParticipant(participant);
-                  setShowModal(true);
-                }}
-                onShowResultsClick={(participant) => {
-                  setSelectedParticipant(participant);
-                  setShowResultsModal(true);
-                }}
-              />
-            ))}
-          </tbody>
-        </table>
+            <tbody>
+              {filteredParticipants.map((participant) => (
+                <ParticipantRow
+                  key={participant.id}
+                  participant={participant}
+                  onEditClick={(participant) => {
+                    setSelectedParticipant(participant);
+                    setShowModal(true);
+                  }}
+                  onShowResultsClick={(participant) => {
+                    setSelectedParticipant(participant);
+                    setShowResultsModal(true);
+                  }}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
         {showModal && (
           <ParticipantModal
             selectedParticipant={selectedParticipant}
@@ -642,7 +644,7 @@ function Participants({ search }: ParticipantsProps) {
           />
         )}
       </ShowIf>
-    </div>
+    </>
   );
 }
 

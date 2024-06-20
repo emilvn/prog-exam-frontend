@@ -612,36 +612,38 @@ function Results() {
         </div>
       </ShowIf>
       <ShowIf condition={!isLoading}>
-        <ResultFilter
-          disciplines={disciplines}
-          setSelectedDiscipline={setSelectedDiscipline}
-          setSelectedGender={setSelectedGender}
-          setSelectedAgeGroup={setSelectedAgeGroup}
-          setShowResultModal={setShowResultModal}
-        />
-        <ResultTable
-          results={filteredResults}
-          participants={filteredParticipants}
-          disciplines={disciplines}
-          onResultSelect={(result) => {
-            setSelectedResult(result);
-            setShowResultModal(true);
-          }}
-        />
-        {showResultModal && (
-          <ResultModal
-            onClose={() => {
-              setShowResultModal(false);
-              setSelectedResult(undefined);
-            }}
-            createMany={createMany}
-            update={update}
-            remove={remove}
-            participants={participants}
+        <div className={"w-full"}>
+          <ResultFilter
             disciplines={disciplines}
-            selectedResult={selectedResult}
+            setSelectedDiscipline={setSelectedDiscipline}
+            setSelectedGender={setSelectedGender}
+            setSelectedAgeGroup={setSelectedAgeGroup}
+            setShowResultModal={setShowResultModal}
           />
-        )}
+          <ResultTable
+            results={filteredResults}
+            participants={filteredParticipants}
+            disciplines={disciplines}
+            onResultSelect={(result) => {
+              setSelectedResult(result);
+              setShowResultModal(true);
+            }}
+          />
+          {showResultModal && (
+            <ResultModal
+              onClose={() => {
+                setShowResultModal(false);
+                setSelectedResult(undefined);
+              }}
+              createMany={createMany}
+              update={update}
+              remove={remove}
+              participants={participants}
+              disciplines={disciplines}
+              selectedResult={selectedResult}
+            />
+          )}
+        </div>
       </ShowIf>
     </>
   );

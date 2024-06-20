@@ -112,74 +112,76 @@ function Disciplines() {
   const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline | null>(null);
 
   return (
-    <div>
+    <>
       <ShowIf condition={isLoading}>
         <div className={"flex items-center justify-center absolute w-full h-full"}>
           <LoadingSpinner />
         </div>
       </ShowIf>
       <ShowIf condition={!isLoading}>
-        <div className={"flex items-center justify-between"}>
-          <h2 className={"text-2xl font-semibold p-2"}>Discipliner</h2>
-          <button
-            className={"bg-green-500 text-white p-2 rounded hover:bg-green-600 transition-colors"}
-            onClick={() => setShowModal(true)}
-          >
-            Tilføj disciplin
-          </button>
-        </div>
-        <table className={"w-full"}>
-          <thead className={"text-left"}>
-            <tr className={"border-b"}>
-              <th className={"p-1"}>Disciplin</th>
-              <th>Bedste Resultat Mænd</th>
-              <th>Bedste Resultat Kvinder</th>
-              <th>Resultattype</th>
-            </tr>
-          </thead>
-          <tbody>
-            {disciplines.map((discipline) => (
-              <tr
-                key={discipline.id}
-                className={"text-xl border-b hover:bg-sky-300 transition-colors cursor-pointer"}
-                onClick={() => {
-                  setSelectedDiscipline(discipline);
-                  setShowModal(true);
-                }}
-              >
-                <td className={"p-1"}>{discipline.name}</td>
-                <td>
-                  {formatResult(
-                    getBestResultByDisciplineAndGender(results, discipline, participants, true)
-                      .bestResult?.result ?? 0,
-                    discipline.resultType
-                  )}
-                </td>
-                <td>
-                  {formatResult(
-                    getBestResultByDisciplineAndGender(results, discipline, participants, false)
-                      .bestResult?.result ?? 0,
-                    discipline.resultType
-                  )}
-                </td>
-                <td>{getResultTypeStringShort(discipline.resultType)}</td>
+        <div className={"w-full"}>
+          <div className={"flex gap-4 w-full justify-between"}>
+            <h2 className={"text-2xl font-semibold p-2"}>Discipliner</h2>
+            <button
+              className={"bg-green-500 text-white p-2 rounded hover:bg-green-600 transition-colors"}
+              onClick={() => setShowModal(true)}
+            >
+              Tilføj disciplin
+            </button>
+          </div>
+          <table className={"w-full"}>
+            <thead className={"text-left"}>
+              <tr className={"border-b"}>
+                <th className={"p-1"}>Disciplin</th>
+                <th>Bedste Resultat Mænd</th>
+                <th>Bedste Resultat Kvinder</th>
+                <th>Resultattype</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {showModal && (
-          <DisciplineModal
-            selectedDiscipline={selectedDiscipline}
-            create={create}
-            update={update}
-            onClose={() => {
-              setShowModal(false);
-              setSelectedDiscipline(null);
-            }}
-          />
-        )}
+            </thead>
+            <tbody>
+              {disciplines.map((discipline) => (
+                <tr
+                  key={discipline.id}
+                  className={"text-xl border-b hover:bg-sky-300 transition-colors cursor-pointer"}
+                  onClick={() => {
+                    setSelectedDiscipline(discipline);
+                    setShowModal(true);
+                  }}
+                >
+                  <td className={"p-1"}>{discipline.name}</td>
+                  <td>
+                    {formatResult(
+                      getBestResultByDisciplineAndGender(results, discipline, participants, true)
+                        .bestResult?.result ?? 0,
+                      discipline.resultType
+                    )}
+                  </td>
+                  <td>
+                    {formatResult(
+                      getBestResultByDisciplineAndGender(results, discipline, participants, false)
+                        .bestResult?.result ?? 0,
+                      discipline.resultType
+                    )}
+                  </td>
+                  <td>{getResultTypeStringShort(discipline.resultType)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {showModal && (
+            <DisciplineModal
+              selectedDiscipline={selectedDiscipline}
+              create={create}
+              update={update}
+              onClose={() => {
+                setShowModal(false);
+                setSelectedDiscipline(null);
+              }}
+            />
+          )}
+        </div>
       </ShowIf>
-    </div>
+    </>
   );
 }
 
