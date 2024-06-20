@@ -18,7 +18,7 @@ function formatCentimeters(centimeters: number): string {
     const meters = Math.floor(centimeters / 100);
     const centimetersLeft = centimeters % 100;
 
-    return `${meters}m ${centimetersLeft}cm`;
+    return `${meters},${centimetersLeft} meter`;
 }
 
 export { formatMilliseconds, formatCentimeters };

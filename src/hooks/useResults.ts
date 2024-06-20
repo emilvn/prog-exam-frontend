@@ -50,8 +50,7 @@ function useResults() {
             .catch((error: unknown) => {
                 if (error instanceof Error) {
                     toast.error(
-                        "Failed to fetch results for selectedParticipant: " +
-                            error.message
+                        "Failed to fetch results for selectedParticipant: " + error.message
                     );
                 }
             });
@@ -63,19 +62,14 @@ function useResults() {
             .then((results) => results.map(mapDTOToResult))
             .catch((error: unknown) => {
                 if (error instanceof Error) {
-                    toast.error(
-                        "Failed to fetch results for discipline: " +
-                            error.message
-                    );
+                    toast.error("Failed to fetch results for discipline: " + error.message);
                 }
             });
     };
 
-    const create = async (result: Result) => {
+    const create = async (result: ResultDTO) => {
         try {
-            const createdResult = await dataService.create(
-                mapResultToDTO(result)
-            );
+            const createdResult = await dataService.create(result);
             setResults([...results, mapDTOToResult(createdResult)]);
         } catch (error: unknown) {
             if (error instanceof Error) {
@@ -86,16 +80,9 @@ function useResults() {
 
     const update = async (result: Result) => {
         try {
-            const updatedResult = await dataService.update(
-                mapResultToDTO(result),
-                result.id
-            );
+            const updatedResult = await dataService.update(mapResultToDTO(result), result.id);
             setResults(
-                results.map((r) =>
-                    r.id === updatedResult.id
-                        ? mapDTOToResult(updatedResult)
-                        : r
-                )
+                results.map((r) => (r.id === updatedResult.id ? mapDTOToResult(updatedResult) : r))
             );
         } catch (error: unknown) {
             if (error instanceof Error) {

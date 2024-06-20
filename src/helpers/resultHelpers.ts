@@ -22,4 +22,21 @@ function formatResult(result: number, resultType: ResultType) {
     return formatCentimeters(result);
 }
 
-export { sortResultsBestToWorst, formatResult };
+function getResultTypeString(resultType: ResultType) {
+    switch (resultType) {
+        case ResultType.TIME_IN_MILLISECONDS:
+            return "Tid i millisekunder";
+        case ResultType.POINTS:
+            return "Point";
+        case ResultType.DISTANCE_IN_CENTIMETRES:
+            return "Distance i centimeter";
+        case ResultType.HEIGHT_IN_CENTIMETRES:
+            return "Højde i centimeter";
+        case ResultType.LENGTH_IN_CENTIMETRES:
+            return "Længde i centimeter";
+        default:
+            return "";
+    }
+}
+
+export { sortResultsBestToWorst, formatResult, getResultTypeString };
