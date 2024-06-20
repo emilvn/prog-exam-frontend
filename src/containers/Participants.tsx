@@ -11,6 +11,8 @@ import { sortParticipants } from "../helpers/participantHelpers.ts";
 import { MdClose, MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 import useDisciplines from "../hooks/useDisciplines.ts";
 import type { Discipline } from "../types/disciplines.types.ts";
+import ShowIf from "../components/ShowIf.tsx";
+import { LoadingSpinner } from "../components/loading.tsx";
 
 interface DisciplineEditProps {
     participant: ParticipantWithDisciplines;
@@ -381,116 +383,123 @@ function Participants({ search }: ParticipantsProps) {
 
     return (
         <div>
-            <div className={"p-4 flex items-center justify-between"}>
-                <div className={"flex items-end gap-2"}>
-                    <h1 className={"text-2xl font-semibold"}>Deltagere</h1>
-                    <span className={"text-gray-500"}>
-                        Viser {filteredParticipants.length} / {participants.length} deltager(e)
-                    </span>
+            <ShowIf condition={isLoading}>
+                <div className={"flex justify-center items-center w-full h-96"}>
+                    <LoadingSpinner />
                 </div>
-                <button
-                    className={
-                        "border rounded-lg bg-sky-500 hover:bg-sky-800 text-white px-4 py-2 font-semibold"
-                    }
-                    onClick={() => setShowModal(true)}
-                    title={"Opret deltager"}
-                >
-                    Opret deltager
-                </button>
-            </div>
-            <table className="w-full">
-                <thead className="bg-sky-300 text-white text-left">
-                    <tr>
-                        <th
-                            className={"p-1 cursor-pointer select-none"}
-                            onClick={() => {
-                                setSortColumn("name");
-                                setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                            }}
-                        >
-                            Navn
-                            {sortColumn === "name" && sortOrder === "asc" && (
-                                <MdKeyboardArrowUp className={"inline-block"} />
-                            )}
-                            {sortColumn === "name" && sortOrder === "desc" && (
-                                <MdKeyboardArrowDown className={"inline-block"} />
-                            )}
-                        </th>
-                        <th
-                            className={"p-1 cursor-pointer select-none"}
-                            onClick={() => {
-                                setSortColumn("isMale");
-                                setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                            }}
-                        >
-                            Køn
-                            {sortColumn === "isMale" && sortOrder === "asc" && (
-                                <MdKeyboardArrowUp className={"inline-block"} />
-                            )}
-                            {sortColumn === "isMale" && sortOrder === "desc" && (
-                                <MdKeyboardArrowDown className={"inline-block"} />
-                            )}
-                        </th>
-                        <th
-                            className={"p-1 cursor-pointer select-none"}
-                            onClick={() => {
-                                setSortColumn("birthDate");
-                                setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                            }}
-                        >
-                            Født
-                            {sortColumn === "birthDate" && sortOrder === "asc" && (
-                                <MdKeyboardArrowUp className={"inline-block"} />
-                            )}
-                            {sortColumn === "birthDate" && sortOrder === "desc" && (
-                                <MdKeyboardArrowDown className={"inline-block"} />
-                            )}
-                        </th>
-                        <th
-                            className={"p-1 cursor-pointer select-none"}
-                            onClick={() => {
-                                setSortColumn("club");
-                                setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                            }}
-                        >
-                            Klub
-                            {sortColumn === "club" && sortOrder === "asc" && (
-                                <MdKeyboardArrowUp className={"inline-block"} />
-                            )}
-                            {sortColumn === "club" && sortOrder === "desc" && (
-                                <MdKeyboardArrowDown className={"inline-block"} />
-                            )}
-                        </th>
-                    </tr>
-                </thead>
+            </ShowIf>
+            <ShowIf condition={!isLoading}>
+                <div className={"p-4 flex items-center justify-between"}>
+                    <div className={"flex items-end gap-2"}>
+                        <h1 className={"text-2xl font-semibold"}>Deltagere</h1>
+                        <span className={"text-gray-500"}>
+                            Viser {filteredParticipants.length} / {participants.length} deltager(e)
+                        </span>
+                    </div>
+                    <button
+                        className={
+                            "border rounded-lg bg-sky-500 hover:bg-sky-800 text-white px-4 py-2 font-semibold"
+                        }
+                        onClick={() => setShowModal(true)}
+                        title={"Opret deltager"}
+                    >
+                        Opret deltager
+                    </button>
+                </div>
+                <table className="w-full">
+                    <thead className="bg-sky-300 text-white text-left">
+                        <tr>
+                            <th
+                                className={"p-1 cursor-pointer select-none"}
+                                onClick={() => {
+                                    setSortColumn("name");
+                                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                                }}
+                            >
+                                Navn
+                                {sortColumn === "name" && sortOrder === "asc" && (
+                                    <MdKeyboardArrowUp className={"inline-block"} />
+                                )}
+                                {sortColumn === "name" && sortOrder === "desc" && (
+                                    <MdKeyboardArrowDown className={"inline-block"} />
+                                )}
+                            </th>
+                            <th
+                                className={"p-1 cursor-pointer select-none"}
+                                onClick={() => {
+                                    setSortColumn("isMale");
+                                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                                }}
+                            >
+                                Køn
+                                {sortColumn === "isMale" && sortOrder === "asc" && (
+                                    <MdKeyboardArrowUp className={"inline-block"} />
+                                )}
+                                {sortColumn === "isMale" && sortOrder === "desc" && (
+                                    <MdKeyboardArrowDown className={"inline-block"} />
+                                )}
+                            </th>
+                            <th
+                                className={"p-1 cursor-pointer select-none"}
+                                onClick={() => {
+                                    setSortColumn("birthDate");
+                                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                                }}
+                            >
+                                Født
+                                {sortColumn === "birthDate" && sortOrder === "asc" && (
+                                    <MdKeyboardArrowUp className={"inline-block"} />
+                                )}
+                                {sortColumn === "birthDate" && sortOrder === "desc" && (
+                                    <MdKeyboardArrowDown className={"inline-block"} />
+                                )}
+                            </th>
+                            <th
+                                className={"p-1 cursor-pointer select-none"}
+                                onClick={() => {
+                                    setSortColumn("club");
+                                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                                }}
+                            >
+                                Klub
+                                {sortColumn === "club" && sortOrder === "asc" && (
+                                    <MdKeyboardArrowUp className={"inline-block"} />
+                                )}
+                                {sortColumn === "club" && sortOrder === "desc" && (
+                                    <MdKeyboardArrowDown className={"inline-block"} />
+                                )}
+                            </th>
+                        </tr>
+                    </thead>
 
-                <tbody>
-                    {filteredParticipants.map((participant) => (
-                        <ParticipantRow
-                            key={participant.id}
-                            participant={participant}
-                            onSelect={(participant) => {
-                                setSelectedParticipant(participant);
-                                setShowModal(true);
-                            }}
-                        />
-                    ))}
-                </tbody>
-            </table>
-            {showModal && (
-                <ParticipantModal
-                    selectedParticipant={selectedParticipant}
-                    create={create}
-                    update={update}
-                    remove={remove}
-                    addDisciplines={addDisciplines}
-                    removeDisciplines={removeDisciplines}
-                    onClose={() => {
-                        setShowModal(false);
-                        setSelectedParticipant(null);
-                    }}
-                />
-            )}
+                    <tbody>
+                        {filteredParticipants.map((participant) => (
+                            <ParticipantRow
+                                key={participant.id}
+                                participant={participant}
+                                onSelect={(participant) => {
+                                    setSelectedParticipant(participant);
+                                    setShowModal(true);
+                                }}
+                            />
+                        ))}
+                    </tbody>
+                </table>
+                {showModal && (
+                    <ParticipantModal
+                        selectedParticipant={selectedParticipant}
+                        create={create}
+                        update={update}
+                        remove={remove}
+                        addDisciplines={addDisciplines}
+                        removeDisciplines={removeDisciplines}
+                        onClose={() => {
+                            setShowModal(false);
+                            setSelectedParticipant(null);
+                        }}
+                    />
+                )}
+            </ShowIf>
         </div>
     );
 }
