@@ -6,15 +6,19 @@ import { Participant } from "../types/participants.types.ts";
 function sortResultsBestToWorst(results: Result[], resultType: ResultType) {
   const sortedResults = [...results];
 
-  sortedResults.sort((a, b) => b.result - a.result);
+  sortedResults.sort((a, b) => {
+    if (a.result === b.result) return a.date.getTime() - b.date.getTime();
+    if (resultType === ResultType.TIME_IN_MILLISECONDS) {
+      return a.result - b.result;
+    }
+    return b.result - a.result;
+  });
 
-  if (resultType === ResultType.TIME_IN_MILLISECONDS) {
-    sortedResults.reverse();
-  }
   return sortedResults;
 }
 
-function formatResult(result: number, resultType: ResultType) {
+function formatResult(result: number | undefined, resultType: ResultType) {
+  if (!result) return "-";
   if (result === 0) return "-";
   if (resultType === ResultType.TIME_IN_MILLISECONDS) {
     return formatMilliseconds(result);

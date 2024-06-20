@@ -5,11 +5,169 @@ import { Discipline } from "../types/disciplines.types.ts";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Result } from "../types/results.types.ts";
 import { ParticipantWithDisciplines } from "../types/participants.types.ts";
-import { formatResult, sortResultsBestToWorst } from "../helpers/resultHelpers.ts";
+import {
+  formatResult,
+  getBestResultByDisciplineAndGender,
+  sortResultsBestToWorst
+} from "../helpers/resultHelpers.ts";
 import { formatDate } from "../utils/dateUtils.ts";
 import ShowIf from "../components/ShowIf.tsx";
 import { LoadingSpinner } from "../components/loading.tsx";
 import { getAgeGroup } from "../helpers/participantHelpers.ts";
+
+interface LatestResultsProps {
+  results: Result[];
+  participants: ParticipantWithDisciplines[];
+  disciplines: Discipline[];
+}
+
+function LatestResults({ results, participants, disciplines }: LatestResultsProps) {
+  const sortedResults = results.sort((a, b) => b.date.getTime() - a.date.getTime());
+  return (
+    <div className={"flex flex-col gap-4 w-80 shadow-lg h-fit pb-3"}>
+      <h2 className="text-2xl font-semibold bg-sky-500 rounded-t-lg p-2 text-white text-center">
+        Seneste Resultater
+      </h2>
+      <div className={"p-2"}>
+        <table className="w-full">
+          <thead className="text-left bg-sky-200">
+            <tr>
+              <th className="px-1 w-1/5 font-light">Disciplin</th>
+              <th className="w-1/5 font-light">Resultat</th>
+              <th className="w-1/5 font-light">Navn</th>
+              <th className="w-1/5 font-light">Dato</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedResults.map((result) => {
+              const discipline = disciplines.find((d) => d.id === result.disciplineId);
+              if (!discipline) return null;
+              const participant = participants.find((p) => p.id === result.participantId);
+              return (
+                <tr
+                  key={result.id}
+                  className={"text-sm odd:bg-gray-100"}
+                >
+                  <td>{discipline.name}</td>
+                  <td>{formatResult(result.result, discipline.resultType)}</td>
+                  <td>{participant?.name}</td>
+                  <td>{formatDate(result.date)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+interface BestResultsProps {
+  results: Result[];
+  participants: ParticipantWithDisciplines[];
+  disciplines: Discipline[];
+}
+
+function BestResults({ results, participants, disciplines }: BestResultsProps) {
+  const [selectedAgeGroup, setSelectedAgeGroup] = useState<string>("");
+  const [filteredParticipants, setFilteredParticipants] = useState<ParticipantWithDisciplines[]>(
+    []
+  );
+
+  useEffect(() => {
+    if (selectedAgeGroup !== "") {
+      setFilteredParticipants(
+        participants.filter((participant) => selectedAgeGroup === getAgeGroup(participant))
+      );
+    } else {
+      setFilteredParticipants(participants);
+    }
+  }, [selectedAgeGroup, participants]);
+
+  return (
+    <div className={"flex flex-col gap-4 w-80 shadow-lg h-fit pb-3"}>
+      <h2 className="text-2xl font-semibold bg-sky-500 rounded-t-lg p-2 text-white text-center">
+        Bedste Resultater
+      </h2>
+      <label className="flex flex-col ml-4 mr-8">
+        <span className={"italic text-sm"}>Vælg Aldersgruppe</span>
+        <select
+          onChange={(e) => setSelectedAgeGroup(e.target.value)}
+          className="border p-1 rounded"
+        >
+          <option value={""}>Alle aldersgrupper</option>
+          <option value={"Børn"}>Børn</option>
+          <option value={"Unge"}>Unge</option>
+          <option value={"Junior"}>Junior</option>
+          <option value={"Voksne"}>Voksne</option>
+          <option value={"Senior"}>Senior</option>
+        </select>
+      </label>
+      <div className={"p-2"}>
+        <h3 className={"text-base font-semibold"}>Mænd</h3>
+        <table className="w-full">
+          <thead className="text-left bg-sky-200">
+            <tr>
+              <th className="px-1 w-1/5 font-light">Disciplin</th>
+              <th className="w-1/5 font-light">Resultat</th>
+              <th className="w-1/5 font-light">Navn</th>
+            </tr>
+          </thead>
+          <tbody>
+            {disciplines.map((discipline) => {
+              const { bestResult, participant } = getBestResultByDisciplineAndGender(
+                results,
+                discipline,
+                filteredParticipants,
+                true
+              );
+              return (
+                <tr
+                  key={discipline.id}
+                  className={"text-sm odd:bg-gray-100"}
+                >
+                  <td>{discipline.name}</td>
+                  <td>{formatResult(bestResult?.result, discipline.resultType)}</td>
+                  <td>{participant?.name}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <h3 className={"text-base font-semibold mt-4"}>Kvinder</h3>
+        <table className="w-full">
+          <thead className="text-left  bg-sky-200">
+            <tr>
+              <th className="px-1 w-1/5 font-light">Disciplin</th>
+              <th className="w-1/5 font-light">Resultat</th>
+              <th className="w-1/5 font-light">Navn</th>
+            </tr>
+          </thead>
+          <tbody>
+            {disciplines.map((discipline) => {
+              const { bestResult, participant } = getBestResultByDisciplineAndGender(
+                results,
+                discipline,
+                filteredParticipants,
+                false
+              );
+              return (
+                <tr
+                  key={discipline.id}
+                  className={"text-sm odd:bg-gray-100"}
+                >
+                  <td>{discipline.name}</td>
+                  <td>{formatResult(bestResult?.result, discipline.resultType)}</td>
+                  <td>{participant?.name}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
 
 interface DisciplineGroupProps {
   discipline: Discipline;
@@ -23,7 +181,7 @@ function DisciplineGroup({ discipline, results, participants }: DisciplineGroupP
     <>
       {sortedResults.length > 0 && (
         <div>
-          <h2 className={"bg-sky-300 p-2 font-semibold text-white text-xl px-8"}>
+          <h2 className={"bg-sky-300 font-semibold text-white text-xl px-8 py-1"}>
             {discipline.name}
           </h2>
           <table className="w-full">
@@ -208,17 +366,31 @@ function Home() {
         </div>
       </ShowIf>
       <ShowIf condition={!isLoading}>
-        <RankingFilter
-          disciplines={disciplines}
-          setSelectedDiscipline={setSelectedDiscipline}
-          setSelectedGender={setSelectedGender}
-          setSelectedAgeGroup={setSelectedAgeGroup}
-        />
-        <Ranking
-          results={filteredResults}
-          participants={filteredParticipants}
-          disciplines={disciplines}
-        />
+        <div className={"flex gap-4 w-full justify-between"}>
+          <BestResults
+            results={results}
+            participants={participants}
+            disciplines={disciplines}
+          />
+          <div>
+            <RankingFilter
+              disciplines={disciplines}
+              setSelectedDiscipline={setSelectedDiscipline}
+              setSelectedGender={setSelectedGender}
+              setSelectedAgeGroup={setSelectedAgeGroup}
+            />
+            <Ranking
+              results={filteredResults}
+              participants={filteredParticipants}
+              disciplines={disciplines}
+            />
+          </div>
+          <LatestResults
+            results={results}
+            participants={participants}
+            disciplines={disciplines}
+          />
+        </div>
       </ShowIf>
     </>
   );

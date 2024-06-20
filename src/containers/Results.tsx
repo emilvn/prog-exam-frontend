@@ -393,7 +393,7 @@ function DisciplineGroup({
     <>
       {sortedResults.length > 0 && (
         <div>
-          <h2 className={"bg-sky-300 p-2 font-semibold text-white text-xl px-8"}>
+          <h2 className={"bg-sky-300 py-1 font-semibold text-white text-xl px-8"}>
             {discipline.name}
           </h2>
           <table className="w-full">
