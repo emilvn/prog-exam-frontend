@@ -14,10 +14,11 @@ import { formatDate, getAge } from "../utils/dateUtils.ts";
 import ShowIf from "../components/ShowIf.tsx";
 import { LoadingSpinner } from "../components/loading.tsx";
 import Modal from "../components/Modal.tsx";
+import { MdClose, MdKeyboardArrowDown } from "react-icons/md";
 
 interface ResultModalProps {
     onClose: () => void;
-    create: (result: ResultDTO) => void;
+    createMany: (results: ResultDTO[]) => void;
     update: (result: Result) => void;
     remove: (result: Result) => void;
     participants: ParticipantWithDisciplines[];
@@ -27,7 +28,7 @@ interface ResultModalProps {
 
 function ResultModal({
     onClose,
-    create,
+    createMany,
     update,
     remove,
     participants,
@@ -35,7 +36,7 @@ function ResultModal({
     selectedResult
 }: ResultModalProps) {
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
-
+    const [search, setSearch] = useState<string>("");
     const [selectedParticipant, setSelectedParticipant] = useState<
         ParticipantWithDisciplines | undefined
     >(
@@ -43,6 +44,10 @@ function ResultModal({
             ? participants.find((p) => p.id === selectedResult.participantId)
             : undefined
     );
+    const [selectedParticipants, setSelectedParticipants] = useState<ParticipantWithDisciplines[]>(
+        []
+    );
+
     const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline | undefined>(
         selectedResult?.disciplineId
             ? disciplines.find((d) => d.id === selectedResult.disciplineId)
@@ -52,8 +57,33 @@ function ResultModal({
     const [date, setDate] = useState<string>(
         selectedResult?.date.toISOString().split("T")[0] ?? ""
     );
+    const [filteredParticipants, setFilteredParticipants] = useState<ParticipantWithDisciplines[]>(
+        participants.filter((p) => p.disciplines.some((d) => d.id === selectedDiscipline?.id))
+    );
+    const [showOptions, setShowOptions] = useState<boolean>(false);
+    const [newResults, setNewResults] = useState<ResultDTO[]>([]);
 
-    console.log(selectedDiscipline, selectedParticipant);
+    useEffect(() => {
+        setFilteredParticipants(
+            participants
+                .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
+                .filter((p) => p.disciplines.some((d) => d.id === selectedDiscipline?.id))
+        );
+    }, [search, participants, selectedDiscipline]);
+
+    useEffect(() => {
+        if (selectedDiscipline && selectedParticipants.length > 0) {
+            setNewResults(
+                selectedParticipants.map((participant) => ({
+                    participantId: participant.id,
+                    disciplineId: selectedDiscipline?.id ?? -1,
+                    resultType: selectedDiscipline?.resultType ?? ResultType.TIME_IN_MILLISECONDS,
+                    result: 0,
+                    date: new Date(date).toISOString()
+                }))
+            );
+        }
+    }, [selectedParticipants, selectedDiscipline, date]);
 
     const onSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -68,14 +98,7 @@ function ResultModal({
             update(updatedResult);
             onClose();
         } else {
-            const newResult = {
-                participantId: selectedParticipant?.id ?? -1,
-                disciplineId: selectedDiscipline?.id ?? -1,
-                resultType: selectedDiscipline?.resultType ?? ResultType.POINTS,
-                result: result,
-                date: new Date(date).toISOString()
-            };
-            create(newResult);
+            createMany(newResults.filter((r) => r.result !== 0));
             onClose();
         }
     };
@@ -83,7 +106,7 @@ function ResultModal({
     return (
         <Modal>
             <h1 className={"text-2xl font-semibold"}>
-                {selectedResult ? "Redigér Resultat" : "Opret Resultat"}
+                {selectedResult ? "Redigér Resultat" : "Opret Resultater"}
             </h1>
             <form
                 className={"flex flex-col gap-4"}
@@ -122,46 +145,207 @@ function ResultModal({
                 </label>
                 {selectedDiscipline && (
                     <>
-                        <label className={"flex flex-col gap-2"}>
-                            <span>Vælg Deltager</span>
-                            <select
-                                value={selectedParticipant?.id ?? ""}
-                                onChange={(e) =>
-                                    setSelectedParticipant(
-                                        participants.find((p) => p.id === parseInt(e.target.value))
-                                    )
-                                }
-                                className={"border p-2 rounded"}
-                            >
-                                <option value={""}>Vælg deltager</option>
-                                {participants
-                                    .filter((p) =>
-                                        p.disciplines.some((d) => selectedDiscipline.id === d.id)
-                                    )
-                                    .map((participant) => (
-                                        <option
-                                            key={participant.id}
-                                            value={participant.id}
+                        {selectedResult && (
+                            <label className={"flex flex-col gap-2"}>
+                                <span>Vælg Deltager</span>
+                                <select
+                                    value={selectedParticipant?.id ?? ""}
+                                    onChange={(e) =>
+                                        setSelectedParticipant(
+                                            participants.find(
+                                                (p) => p.id === parseInt(e.target.value)
+                                            )
+                                        )
+                                    }
+                                    className={"border p-2 rounded"}
+                                >
+                                    <option value={""}>Vælg deltager</option>
+                                    {participants
+                                        .filter((p) =>
+                                            p.disciplines.some(
+                                                (d) => selectedDiscipline.id === d.id
+                                            )
+                                        )
+                                        .map((participant) => (
+                                            <option
+                                                key={participant.id}
+                                                value={participant.id}
+                                            >
+                                                {participant.name}
+                                            </option>
+                                        ))}
+                                </select>
+                            </label>
+                        )}
+                        {!selectedResult && (
+                            <div className={"w-96"}>
+                                <span>Vælg Deltagere</span>
+                                <div className={"w-80 relative border rounded-lg py-2"}>
+                                    <div className={"px-4 flex items-center justify-between"}>
+                                        <input
+                                            placeholder={"Vælg Deltagere"}
+                                            value={search}
+                                            onChange={(e) => setSearch(e.target.value)}
+                                            className={"focus:ring-transparent outline-none"}
+                                            onClick={() => setShowOptions(true)}
+                                        />
+                                        <div
+                                            className={
+                                                "cursor-pointer h-6 w-6 flex justify-center items-center"
+                                            }
+                                            onClick={() => setShowOptions(!showOptions)}
                                         >
-                                            {participant.name}
-                                        </option>
-                                    ))}
-                            </select>
-                        </label>
-                        <label className={"flex flex-col gap-2"}>
-                            <span className={"flex items-center gap-2"}>
-                                Resultat
-                                <span className={"text-xs text-gray-700"}>
-                                    ({getResultTypeString(selectedDiscipline.resultType)})
+                                            <MdKeyboardArrowDown />
+                                        </div>
+                                    </div>
+                                    {showOptions && (
+                                        <div
+                                            className={
+                                                "flex flex-col absolute bg-white border rounded-b z-50 w-full max-h-48 overflow-y-auto"
+                                            }
+                                        >
+                                            {filteredParticipants.map((participant) => {
+                                                const isParticipantSelected =
+                                                    selectedParticipants.some(
+                                                        (p) => p.id === participant.id
+                                                    );
+                                                return (
+                                                    <button
+                                                        key={participant.id}
+                                                        className={
+                                                            "border-b px-4 py-2 hover:bg-sky-300 flex justify-between font-semibold" +
+                                                            (isParticipantSelected
+                                                                ? " bg-sky-500 text-white"
+                                                                : "")
+                                                        }
+                                                        onClick={() => {
+                                                            if (isParticipantSelected) {
+                                                                setSelectedParticipants((prev) =>
+                                                                    prev.filter(
+                                                                        (p) =>
+                                                                            p.id !== participant.id
+                                                                    )
+                                                                );
+                                                            } else {
+                                                                setSelectedParticipants((prev) => [
+                                                                    ...prev,
+                                                                    participant
+                                                                ]);
+                                                            }
+                                                        }}
+                                                        type={"button"}
+                                                    >
+                                                        {participant.name}
+                                                        {isParticipantSelected && (
+                                                            <MdClose className={"inline-block"} />
+                                                        )}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                                {selectedParticipants.length > 0 && (
+                                    <div className={"w-96 mt-1 max-h-56 overflow-y-auto"}>
+                                        <table className={"w-full"}>
+                                            <thead className={"text-left"}>
+                                                <tr>
+                                                    <th>Deltager</th>
+                                                    <th>
+                                                        <span
+                                                            className={
+                                                                "flex items-center gap-1 select-none"
+                                                            }
+                                                        >
+                                                            Resultat
+                                                            <span
+                                                                className={"text-xs text-gray-700"}
+                                                            >
+                                                                (
+                                                                {getResultTypeString(
+                                                                    selectedDiscipline.resultType
+                                                                )}
+                                                                )
+                                                            </span>
+                                                        </span>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {selectedParticipants.map((participant) => (
+                                                    <tr
+                                                        key={participant.id}
+                                                        className={"text-sm"}
+                                                    >
+                                                        <td>{participant.name}</td>
+                                                        <td>
+                                                            <input
+                                                                type="number"
+                                                                value={
+                                                                    newResults.find(
+                                                                        (r) =>
+                                                                            r.participantId ===
+                                                                            participant.id
+                                                                    )?.result ?? 0
+                                                                }
+                                                                onChange={(e) =>
+                                                                    setNewResults((prev) =>
+                                                                        prev.map((r) =>
+                                                                            r.participantId ===
+                                                                            participant.id
+                                                                                ? {
+                                                                                      ...r,
+                                                                                      result: Number(
+                                                                                          e.target
+                                                                                              .value
+                                                                                      )
+                                                                                  }
+                                                                                : r
+                                                                        )
+                                                                    )
+                                                                }
+                                                                className={"border px-2 rounded"}
+                                                            />
+                                                            <MdClose
+                                                                className={
+                                                                    "cursor-pointer bg-red-500 hover:bg-red-300 rounded text-white inline-block h-5 w-5 ml-1"
+                                                                }
+                                                                onClick={() => {
+                                                                    setSelectedParticipants(
+                                                                        (prev) =>
+                                                                            prev.filter(
+                                                                                (p) =>
+                                                                                    p.id !==
+                                                                                    participant.id
+                                                                            )
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        {selectedResult && (
+                            <label className={"flex flex-col gap-2"}>
+                                <span className={"flex items-center gap-2 select-none"}>
+                                    Resultat
+                                    <span className={"text-xs text-gray-700"}>
+                                        ({getResultTypeString(selectedDiscipline.resultType)})
+                                    </span>
                                 </span>
-                            </span>
-                            <input
-                                type="number"
-                                value={result}
-                                onChange={(e) => setResult(parseInt(e.target.value))}
-                                className={"border p-2 rounded"}
-                            />
-                        </label>
+                                <input
+                                    type="number"
+                                    value={result}
+                                    onChange={(e) => setResult(parseInt(e.target.value))}
+                                    className={"border p-2 rounded"}
+                                />
+                            </label>
+                        )}
                     </>
                 )}
                 <div className={"flex justify-end items-center gap-2"}>
@@ -343,7 +527,7 @@ function ResultFilter({
             <div className={"flex justify-between items-center"}>
                 <h2 className="text-2xl font-semibold">Resultater</h2>
                 <button
-                    className="bg-sky-500 text-white p-2 rounded-lg hover:bg-sky-800 font-semibold"
+                    className="bg-sky-500 text-white p-2 rounded-lg hover:bg-sky-800 hover:text-white font-semibold"
                     onClick={() => setShowResultModal(true)}
                 >
                     Tilføj resultat
@@ -402,7 +586,7 @@ function ResultFilter({
 }
 
 function Results() {
-    const { results, isLoading: resultsLoading, create, update, remove } = useResults();
+    const { results, isLoading: resultsLoading, createMany, update, remove } = useResults();
     const { participants, isLoading: participantsLoading } = useParticipants();
     const { disciplines, isLoading: disciplinesLoading } = useDisciplines();
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -495,7 +679,7 @@ function Results() {
                             setShowResultModal(false);
                             setSelectedResult(undefined);
                         }}
-                        create={create}
+                        createMany={createMany}
                         update={update}
                         remove={remove}
                         participants={participants}

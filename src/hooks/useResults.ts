@@ -67,14 +67,19 @@ function useResults() {
             });
     };
 
-    const create = async (result: ResultDTO) => {
+    const createMany = async (resultDTOs: ResultDTO[]) => {
         try {
-            const createdResult = await dataService.create(result);
-            setResults([...results, mapDTOToResult(createdResult)]);
+            setIsLoading(true);
+            const createdResults = await Promise.all(
+                resultDTOs.map((result) => dataService.create(result))
+            );
+            setResults([...results, ...createdResults.map(mapDTOToResult)]);
         } catch (error: unknown) {
             if (error instanceof Error) {
-                toast.error("Failed to create result: " + error.message);
+                toast.error("Failed to create results: " + error.message);
             }
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -105,7 +110,7 @@ function useResults() {
     return {
         results,
         isLoading,
-        create,
+        createMany,
         update,
         remove,
         getResultsByParticipant,
