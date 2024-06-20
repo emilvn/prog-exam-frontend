@@ -4,8 +4,8 @@ interface QueryParam {
 }
 
 class DataService<DTO> {
-    private readonly endpoint = import.meta.env.VITE_API_URL;
-    private readonly uri: string;
+    protected readonly endpoint = import.meta.env.VITE_API_URL;
+    protected readonly uri: string;
 
     constructor(uri: string) {
         this.uri = uri;
@@ -88,7 +88,7 @@ class DataService<DTO> {
         }
     }
 
-    private createQueryParamString(
+    protected createQueryParamString(
         queryParams: QueryParam[] | undefined
     ): string {
         if (queryParams) {
