@@ -1,5 +1,7 @@
 import { Result, ResultType } from "../types/results.types.ts";
 import { formatCentimeters, formatMilliseconds } from "../utils/numberUtils.ts";
+import { Discipline } from "../types/disciplines.types.ts";
+import { Participant } from "../types/participants.types.ts";
 
 function sortResultsBestToWorst(results: Result[], resultType: ResultType) {
     const sortedResults = [...results];
@@ -13,6 +15,7 @@ function sortResultsBestToWorst(results: Result[], resultType: ResultType) {
 }
 
 function formatResult(result: number, resultType: ResultType) {
+    if (result === 0) return "-";
     if (resultType === ResultType.TIME_IN_MILLISECONDS) {
         return formatMilliseconds(result);
     }
@@ -39,4 +42,31 @@ function getResultTypeString(resultType: ResultType) {
     }
 }
 
-export { sortResultsBestToWorst, formatResult, getResultTypeString };
+function getBestResultByDisciplineAndGender(
+    results: Result[],
+    discipline: Discipline,
+    participants: Participant[],
+    isMale: boolean
+) {
+    const sortedResults = sortResultsBestToWorst(
+        results
+            .filter((r) => r.disciplineId === discipline.id)
+            .filter((r) => {
+                const participant = participants.find((p) => p.id === r.participantId);
+                return participant?.isMale === isMale;
+            }),
+        discipline.resultType
+    );
+    const bestResult = sortedResults[0];
+    const participant = participants.find(
+        (participant) => participant.id === bestResult?.participantId
+    );
+    return { bestResult, participant };
+}
+
+export {
+    sortResultsBestToWorst,
+    formatResult,
+    getResultTypeString,
+    getBestResultByDisciplineAndGender
+};

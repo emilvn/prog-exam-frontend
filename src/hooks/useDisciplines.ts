@@ -20,9 +20,7 @@ function useDisciplines() {
             })
             .catch((error: unknown) => {
                 if (error instanceof Error) {
-                    toast.error(
-                        "Failed to fetch disciplines: " + error.message
-                    );
+                    toast.error("Failed to fetch disciplines: " + error.message);
                 }
             })
             .finally(() => {
@@ -43,14 +41,9 @@ function useDisciplines() {
 
     const update = async (discipline: Discipline) => {
         try {
-            const updatedDiscipline = await dataService.update(
-                discipline,
-                discipline.id ?? -1
-            );
+            const updatedDiscipline = await dataService.update(discipline, discipline.id ?? -1);
             setDisciplines(
-                disciplines.map((d) =>
-                    d.id === updatedDiscipline.id ? updatedDiscipline : d
-                )
+                disciplines.map((d) => (d.id === updatedDiscipline.id ? updatedDiscipline : d))
             );
         } catch (error: unknown) {
             if (error instanceof Error) {
@@ -59,18 +52,7 @@ function useDisciplines() {
         }
     };
 
-    const remove = async (discipline: Discipline) => {
-        try {
-            await dataService.delete(discipline.id ?? -1);
-            setDisciplines(disciplines.filter((d) => d.id !== discipline.id));
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                toast.error("Failed to remove discipline: " + error.message);
-            }
-        }
-    };
-
-    return { disciplines, isLoading, create, update, remove };
+    return { disciplines, isLoading, create, update };
 }
 
 export default useDisciplines;
