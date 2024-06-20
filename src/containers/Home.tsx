@@ -6,9 +6,10 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Result } from "../types/results.types.ts";
 import { ParticipantWithDisciplines } from "../types/participants.types.ts";
 import { formatResult, sortResultsBestToWorst } from "../helpers/resultHelpers.ts";
-import { formatDate, getAge } from "../utils/dateUtils.ts";
+import { formatDate } from "../utils/dateUtils.ts";
 import ShowIf from "../components/ShowIf.tsx";
 import { LoadingSpinner } from "../components/loading.tsx";
+import { getAgeGroup } from "../helpers/participantHelpers.ts";
 
 interface DisciplineGroupProps {
   discipline: Discipline;
@@ -194,21 +195,7 @@ function Home() {
 
     if (selectedAgeGroup !== "") {
       setFilteredParticipants(
-        participants.filter((participant) => {
-          const age = getAge(participant.birthDate);
-          if (selectedAgeGroup === "Børn") {
-            return age < 10;
-          } else if (selectedAgeGroup === "Unge") {
-            return age >= 10 && age < 14;
-          } else if (selectedAgeGroup === "Junior") {
-            return age >= 14 && age < 23;
-          } else if (selectedAgeGroup === "Voksne") {
-            return age >= 23 && age < 41;
-          } else if (selectedAgeGroup === "Senior") {
-            return age >= 41;
-          }
-          return true;
-        })
+        participants.filter((participant) => selectedAgeGroup === getAgeGroup(participant))
       );
     }
   }, [selectedGender, participants, selectedAgeGroup]);

@@ -43,7 +43,7 @@ function useResults() {
       });
   }, []);
 
-  const getResultsByParticipant = (participantId: number) => {
+  const getResultsByParticipant = (participantId: number): Promise<Result[]> => {
     return dataService
       .getResultsByParticipantId(participantId)
       .then((results) => results.map(mapDTOToResult))
@@ -51,10 +51,11 @@ function useResults() {
         if (error instanceof Error) {
           toast.error("Failed to fetch results for selectedParticipant: " + error.message);
         }
+        return [];
       });
   };
 
-  const getResultsByDiscipline = (disciplineId: number) => {
+  const getResultsByDiscipline = (disciplineId: number): Promise<Result[]> => {
     return dataService
       .getResultsByDisciplineId(disciplineId)
       .then((results) => results.map(mapDTOToResult))
@@ -62,6 +63,7 @@ function useResults() {
         if (error instanceof Error) {
           toast.error("Failed to fetch results for selectedDiscipline: " + error.message);
         }
+        return [];
       });
   };
 

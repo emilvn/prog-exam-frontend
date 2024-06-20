@@ -1,4 +1,5 @@
 import { Participant, ParticipantWithDisciplines } from "../types/participants.types.ts";
+import { getAge } from "../utils/dateUtils.ts";
 
 function sortParticipants(
   sortBy: string,
@@ -17,4 +18,19 @@ function sortParticipants(
   });
 }
 
-export { sortParticipants };
+function getAgeGroup(participant: Participant): string {
+  const age = getAge(participant.birthDate);
+  if (age < 10) {
+    return "Børn";
+  } else if (age >= 10 && age < 14) {
+    return "Unge";
+  } else if (age >= 14 && age < 23) {
+    return "Junior";
+  } else if (age >= 23 && age < 41) {
+    return "Voksne";
+  } else {
+    return "Senior";
+  }
+}
+
+export { sortParticipants, getAgeGroup };

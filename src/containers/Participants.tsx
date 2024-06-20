@@ -7,12 +7,106 @@ import type {
 } from "../types/participants.types.ts";
 import { newParticipant } from "../types/participants.types.ts";
 import Modal from "../components/Modal.tsx";
-import { sortParticipants } from "../helpers/participantHelpers.ts";
-import { MdClose, MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
+import { getAgeGroup, sortParticipants } from "../helpers/participantHelpers.ts";
+import { MdClose, MdEdit, MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 import useDisciplines from "../hooks/useDisciplines.ts";
 import type { Discipline } from "../types/disciplines.types.ts";
 import ShowIf from "../components/ShowIf.tsx";
 import { LoadingSpinner } from "../components/loading.tsx";
+import useResults from "../hooks/useResults.ts";
+import toast from "react-hot-toast";
+import type { Result } from "../types/results.types.ts";
+import { TbDeviceWatchStats2 } from "react-icons/tb";
+import { formatResult } from "../helpers/resultHelpers.ts";
+import { formatDate } from "../utils/dateUtils.ts";
+
+interface ParticipantResultModalProps {
+  participant: ParticipantWithDisciplines;
+  onClose: () => void;
+}
+
+function ParticipantResultModal({ participant, onClose }: ParticipantResultModalProps) {
+  const { getResultsByParticipant } = useResults();
+  const { disciplines, isLoading: disciplinesLoading } = useDisciplines();
+  const [results, setResults] = useState<Result[]>([]);
+  const [isLoading, setIsLoading] = useState(disciplinesLoading);
+
+  useEffect(() => {
+    setIsLoading(true);
+    getResultsByParticipant(participant.id)
+      .then((results) => setResults(results))
+      .catch((error: unknown) => {
+        if (error instanceof Error) {
+          toast.error("Failed to fetch results: " + error.message);
+        }
+      })
+      .finally(() => setIsLoading(false));
+  }, [participant]);
+
+  return (
+    <Modal>
+      <ShowIf condition={isLoading}>
+        <div className={"flex justify-center items-center w-full h-96"}>
+          <LoadingSpinner />
+        </div>
+      </ShowIf>
+      <ShowIf condition={!isLoading}>
+        <div className={"flex items-end justify-between border-b p-2"}>
+          <h1 className={"text-2xl font-semibold mt-2"}>{participant.name}</h1>
+          <span className={"text-gray-500 text-sm"}>
+            {participant.club} - {getAgeGroup(participant)}
+          </span>
+        </div>
+        <span className={"block mt-2 font-semibold"}>Resultater</span>
+        <div className={"h-80 overflow-y-auto"}>
+          <table className={"w-full my-2"}>
+            <thead className={"bg-sky-300 text-white text-left"}>
+              <tr>
+                <th className={"p-1"}>Disciplin</th>
+                <th className={"p-1"}>Resultat</th>
+                <th className={"p-1"}>Dato</th>
+              </tr>
+            </thead>
+            <tbody>
+              {results.length > 0 &&
+                results.map((result) => (
+                  <tr
+                    key={result.id}
+                    className={"border-b"}
+                  >
+                    <td>{disciplines.find((d) => d.id === result.disciplineId)?.name}</td>
+                    <td>{formatResult(result.result, result.resultType)}</td>
+                    <td>{formatDate(result.date)}</td>
+                  </tr>
+                ))}
+              {results.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={3}
+                    className={"text-center italic text-gray-500 border-b p-4"}
+                  >
+                    Ingen resultater fundet
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className={"flex justify-end items-center gap-2"}>
+          <button
+            className={
+              "border rounded-lg bg-gray-500 hover:bg-gray-300 text-white px-4 py-2 font-semibold"
+            }
+            type="button"
+            onClick={onClose}
+          >
+            Luk
+          </button>
+        </div>
+      </ShowIf>
+    </Modal>
+  );
+}
 
 interface DisciplineEditProps {
   participant: ParticipantWithDisciplines;
@@ -336,20 +430,34 @@ function ParticipantModal({
 
 interface ParticipantRowProps {
   participant: ParticipantWithDisciplines;
-  onSelect: (participant: ParticipantWithDisciplines) => void;
+  onEditClick: (participant: ParticipantWithDisciplines) => void;
+  onShowResultsClick: (participant: ParticipantWithDisciplines) => void;
 }
 
-function ParticipantRow({ participant, onSelect }: ParticipantRowProps) {
+function ParticipantRow({ participant, onEditClick, onShowResultsClick }: ParticipantRowProps) {
   return (
-    <tr
-      className="border-b cursor-pointer hover:bg-sky-200 font-semibold"
-      onClick={() => onSelect(participant)}
-      title={"Klik for at redigere"}
-    >
+    <tr className="border-b font-semibold">
       <td>{participant.name}</td>
       <td>{participant.isMale ? "M" : "K"}</td>
       <td>{participant.birthDate.getFullYear()}</td>
+      <td>{getAgeGroup(participant)}</td>
       <td>{participant.club}</td>
+      <td>
+        <button
+          onClick={() => onShowResultsClick(participant)}
+          title={"Klik for at se resultater"}
+          className={"bg-green-200 hover:bg-green-300 p-2 w-8 rounded-xl"}
+        >
+          <TbDeviceWatchStats2 />
+        </button>
+        <button
+          onClick={() => onEditClick(participant)}
+          title={"Klik for at redigere"}
+          className={"bg-yellow-200 hover:bg-yellow-300 p-2 w-8 rounded-xl"}
+        >
+          <MdEdit />
+        </button>
+      </td>
     </tr>
   );
 }
@@ -368,6 +476,7 @@ function Participants({ search }: ParticipantsProps) {
     null
   );
   const [showModal, setShowModal] = useState(false);
+  const [showResultsModal, setShowResultsModal] = useState(false);
   const [sortColumn, setSortColumn] = useState<string>("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
@@ -461,6 +570,21 @@ function Participants({ search }: ParticipantsProps) {
               <th
                 className={"p-1 cursor-pointer select-none"}
                 onClick={() => {
+                  setSortColumn("birthDate");
+                  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                }}
+              >
+                Aldersgruppe
+                {sortColumn === "birthDate" && sortOrder === "asc" && (
+                  <MdKeyboardArrowUp className={"inline-block"} />
+                )}
+                {sortColumn === "birthDate" && sortOrder === "desc" && (
+                  <MdKeyboardArrowDown className={"inline-block"} />
+                )}
+              </th>
+              <th
+                className={"p-1 cursor-pointer select-none"}
+                onClick={() => {
                   setSortColumn("club");
                   setSortOrder(sortOrder === "asc" ? "desc" : "asc");
                 }}
@@ -473,6 +597,7 @@ function Participants({ search }: ParticipantsProps) {
                   <MdKeyboardArrowDown className={"inline-block"} />
                 )}
               </th>
+              <th className={"p-1"}></th>
             </tr>
           </thead>
 
@@ -481,9 +606,13 @@ function Participants({ search }: ParticipantsProps) {
               <ParticipantRow
                 key={participant.id}
                 participant={participant}
-                onSelect={(participant) => {
+                onEditClick={(participant) => {
                   setSelectedParticipant(participant);
                   setShowModal(true);
+                }}
+                onShowResultsClick={(participant) => {
+                  setSelectedParticipant(participant);
+                  setShowResultsModal(true);
                 }}
               />
             ))}
@@ -499,6 +628,15 @@ function Participants({ search }: ParticipantsProps) {
             removeDisciplines={removeDisciplines}
             onClose={() => {
               setShowModal(false);
+              setSelectedParticipant(null);
+            }}
+          />
+        )}
+        {showResultsModal && selectedParticipant && (
+          <ParticipantResultModal
+            participant={selectedParticipant}
+            onClose={() => {
+              setShowResultsModal(false);
               setSelectedParticipant(null);
             }}
           />
