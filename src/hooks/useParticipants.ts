@@ -82,7 +82,7 @@ function useParticipants() {
         mapParticipantToDTO(participant),
         participant.id
       );
-      console.log(updatedParticipantDTO);
+
       const updatedParticipant = mapDTOToParticipant(updatedParticipantDTO);
       const disciplines = await fetchParticipantDisciplines(updatedParticipant);
 

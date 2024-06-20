@@ -192,33 +192,39 @@ function ResultModal({
                         "flex flex-col absolute bg-white border rounded-b z-50 w-full max-h-48 overflow-y-auto"
                       }
                     >
-                      {filteredParticipants.map((participant) => {
-                        const isParticipantSelected = selectedParticipants.some(
-                          (p) => p.id === participant.id
-                        );
-                        return (
-                          <button
-                            key={participant.id}
-                            className={
-                              "border-b px-4 py-2 hover:bg-sky-300 flex justify-between font-semibold" +
-                              (isParticipantSelected ? " bg-sky-500 text-white" : "")
-                            }
-                            onClick={() => {
-                              if (isParticipantSelected) {
-                                setSelectedParticipants((prev) =>
-                                  prev.filter((p) => p.id !== participant.id)
-                                );
-                              } else {
-                                setSelectedParticipants((prev) => [...prev, participant]);
+                      {filteredParticipants.length > 0 &&
+                        filteredParticipants.map((participant) => {
+                          const isParticipantSelected = selectedParticipants.some(
+                            (p) => p.id === participant.id
+                          );
+                          return (
+                            <button
+                              key={participant.id}
+                              className={
+                                "border-b px-4 py-2 hover:bg-sky-300 flex justify-between font-semibold" +
+                                (isParticipantSelected ? " bg-sky-500 text-white" : "")
                               }
-                            }}
-                            type={"button"}
-                          >
-                            {participant.name}
-                            {isParticipantSelected && <MdClose className={"inline-block"} />}
-                          </button>
-                        );
-                      })}
+                              onClick={() => {
+                                if (isParticipantSelected) {
+                                  setSelectedParticipants((prev) =>
+                                    prev.filter((p) => p.id !== participant.id)
+                                  );
+                                } else {
+                                  setSelectedParticipants((prev) => [...prev, participant]);
+                                }
+                              }}
+                              type={"button"}
+                            >
+                              {participant.name}
+                              {isParticipantSelected && <MdClose className={"inline-block"} />}
+                            </button>
+                          );
+                        })}
+                      {filteredParticipants.length === 0 && (
+                        <div className={"px-4 py-2 italic text-gray-500"}>
+                          Der blev ikke fundet nogen deltagere
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

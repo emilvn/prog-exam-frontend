@@ -186,7 +186,17 @@ function ParticipantModal({
     event.preventDefault();
 
     if (selectedParticipant && participantToUpdate) {
-      update(participantToUpdate);
+      if (
+        !(
+          participantToUpdate.name === selectedParticipant.name &&
+          participantToUpdate.isMale === selectedParticipant.isMale &&
+          participantToUpdate.birthDate.toISOString() ===
+            selectedParticipant.birthDate.toISOString() &&
+          participantToUpdate.club === selectedParticipant.club
+        )
+      ) {
+        update(participantToUpdate);
+      }
       if (disciplineIdsToAdd.length > 0) addDisciplines(disciplineIdsToAdd, selectedParticipant);
       if (disciplineIdsToRemove.length > 0)
         removeDisciplines(disciplineIdsToRemove, selectedParticipant);

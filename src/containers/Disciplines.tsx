@@ -131,7 +131,7 @@ function Disciplines() {
         <table className={"w-full"}>
           <thead className={"text-left"}>
             <tr className={"border-b"}>
-              <th className={"p-1"}>Navn</th>
+              <th className={"p-1"}>Disciplin</th>
               <th>Bedste Resultat Mænd</th>
               <th>Bedste Resultat Kvinder</th>
               <th>Resultattype</th>
