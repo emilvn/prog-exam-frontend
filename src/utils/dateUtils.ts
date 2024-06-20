@@ -20,33 +20,6 @@ function isBetween(date: Date, start: Date, end: Date): boolean {
         date.getHours() > start.getHours() && date.getHours() < end.getHours()
     );
 }
-
-function formatDateForJavaLocalDateTime(date?: Date): string | undefined {
-    if (!date) return;
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const day = date.getDate().toString().padStart(2, "0");
-    const hours = date.getHours().toString().padStart(2, "0");
-    const minutes = date.getMinutes().toString().padStart(2, "0");
-    const seconds = date.getSeconds().toString().padStart(2, "0");
-    const milliseconds = date.getMilliseconds();
-    return (
-        year +
-        "-" +
-        month +
-        "-" +
-        day +
-        "T" +
-        hours +
-        ":" +
-        minutes +
-        ":" +
-        seconds +
-        "." +
-        milliseconds.toString().padStart(6, "0")
-    );
-}
-
 function getDateArray(fromDate: Date, toDate: Date): Date[] {
     const dates = [];
 
@@ -78,13 +51,19 @@ function formatDateWithoutYear(date: Date): string {
     });
 }
 
+function getAge(date: Date): number {
+    const ageDifMs = Date.now() - date.getTime();
+    const ageDate = new Date(ageDifMs);
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+}
+
 export {
     formatDate,
     isSameDay,
-    formatDateForJavaLocalDateTime,
     isBetween,
     getDateArray,
     formatHour,
     formatDateDayAndMonth,
-    formatDateWithoutYear
+    formatDateWithoutYear,
+    getAge
 };
