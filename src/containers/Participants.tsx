@@ -57,6 +57,19 @@ function ParticipantResultModal({ participant, onClose }: ParticipantResultModal
             {participant.club} - {getAgeGroup(participant)}
           </span>
         </div>
+        <span className={"block mt-2 font-semibold"}>Discipliner</span>
+        <ShowIf condition={participant.disciplines.length > 0}>
+          <div className={"flex flex-wrap gap-1 max-w-96"}>
+            {participant.disciplines.map((discipline) => (
+              <div
+                key={discipline.id}
+                className={"p-1 bg-sky-500 text-white text-sm font-light rounded-lg mt-2"}
+              >
+                {discipline.name}
+              </div>
+            ))}
+          </div>
+        </ShowIf>
         <span className={"block mt-2 font-semibold"}>Resultater</span>
         <div className={"h-80 overflow-y-auto"}>
           <table className={"w-full my-2"}>
