@@ -43,7 +43,10 @@ function useDisciplines() {
 
     const update = async (discipline: Discipline) => {
         try {
-            const updatedDiscipline = await dataService.update(discipline);
+            const updatedDiscipline = await dataService.update(
+                discipline,
+                discipline.id ?? -1
+            );
             setDisciplines(
                 disciplines.map((d) =>
                     d.id === updatedDiscipline.id ? updatedDiscipline : d

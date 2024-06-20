@@ -1,17 +1,13 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./containers/Home.tsx";
 import PageLayout from "./components/PageLayout.tsx";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Participants from "./containers/Participants.tsx";
 import Disciplines from "./containers/Disciplines.tsx";
 import Results from "./containers/Results.tsx";
 
 function App() {
     const [search, setSearch] = useState<string>("");
-
-    useEffect(() => {
-        console.log(search);
-    }, [search]);
 
     return (
         <BrowserRouter>

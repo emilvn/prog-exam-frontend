@@ -47,8 +47,8 @@ class DataService<DTO> {
         return await response.json();
     }
 
-    public async update(entity: DTO): Promise<DTO> {
-        const response = await fetch(this.endpoint + this.uri, {
+    public async update(entity: DTO, id: number): Promise<DTO> {
+        const response = await fetch(this.endpoint + this.uri + `/${id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"

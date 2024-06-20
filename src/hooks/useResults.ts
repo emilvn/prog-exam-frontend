@@ -50,7 +50,7 @@ function useResults() {
             .catch((error: unknown) => {
                 if (error instanceof Error) {
                     toast.error(
-                        "Failed to fetch results for participant: " +
+                        "Failed to fetch results for selectedParticipant: " +
                             error.message
                     );
                 }
@@ -87,7 +87,8 @@ function useResults() {
     const update = async (result: Result) => {
         try {
             const updatedResult = await dataService.update(
-                mapResultToDTO(result)
+                mapResultToDTO(result),
+                result.id
             );
             setResults(
                 results.map((r) =>

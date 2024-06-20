@@ -9,16 +9,12 @@ import ParticipantDataService from "../utils/ParticipantDataService.ts";
 import toast from "react-hot-toast";
 
 function useParticipants() {
-    const [participants, setParticipants] = useState<
-        ParticipantWithDisciplines[]
-    >([]);
+    const [participants, setParticipants] = useState<ParticipantWithDisciplines[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const participantDataService = new ParticipantDataService();
 
-    const mapDTOToParticipant = (
-        participantDTO: ParticipantDTO
-    ): Participant => {
+    const mapDTOToParticipant = (participantDTO: ParticipantDTO): Participant => {
         return {
             ...participantDTO,
             id: participantDTO.id ?? -1,
@@ -42,17 +38,13 @@ function useParticipants() {
     };
 
     const getParticipantWithDisciplines = async () => {
-        const participants = (await fetchParticipants()).map(
-            mapDTOToParticipant
+        const participants = (await fetchParticipants()).map(mapDTOToParticipant);
+        const participantsWithDisciplines: ParticipantWithDisciplines[] = await Promise.all(
+            participants.map(async (participant) => {
+                const disciplines = await fetchParticipantDisciplines(participant);
+                return { ...participant, disciplines };
+            })
         );
-        const participantsWithDisciplines: ParticipantWithDisciplines[] =
-            await Promise.all(
-                participants.map(async (participant) => {
-                    const disciplines =
-                        await fetchParticipantDisciplines(participant);
-                    return { ...participant, disciplines };
-                })
-            );
         return participantsWithDisciplines;
     };
 
@@ -62,9 +54,7 @@ function useParticipants() {
             .then((data) => setParticipants(data))
             .catch((error: unknown) => {
                 if (error instanceof Error) {
-                    toast.error(
-                        "Failed to fetch participants: " + error.message
-                    );
+                    toast.error("Failed to fetch participants: " + error.message);
                 }
             })
             .finally(() => setIsLoading(false));
@@ -72,20 +62,16 @@ function useParticipants() {
 
     const create = async (participant: ParticipantDTO) => {
         try {
-            const newParticipantDTO =
-                await participantDataService.create(participant);
+            const newParticipantDTO = await participantDataService.create(participant);
 
             const newParticipant = mapDTOToParticipant(newParticipantDTO);
-            const disciplines =
-                await fetchParticipantDisciplines(newParticipant);
+            const disciplines = await fetchParticipantDisciplines(newParticipant);
 
-            setParticipants([
-                ...participants,
-                { ...newParticipant, disciplines }
-            ]);
+            setParticipants([...participants, { ...newParticipant, disciplines }]);
+            toast.success("Participant created successfully");
         } catch (error: unknown) {
             if (error instanceof Error) {
-                toast.error("Failed to create participant: " + error.message);
+                toast.error("Failed to create selectedParticipant: " + error.message);
             }
         }
     };
@@ -93,25 +79,22 @@ function useParticipants() {
     const update = async (participant: Participant) => {
         try {
             const updatedParticipantDTO = await participantDataService.update(
-                mapParticipantToDTO(participant)
+                mapParticipantToDTO(participant),
+                participant.id
             );
-
-            const updatedParticipant = mapDTOToParticipant(
-                updatedParticipantDTO
-            );
-            const disciplines =
-                await fetchParticipantDisciplines(updatedParticipant);
+            console.log(updatedParticipantDTO);
+            const updatedParticipant = mapDTOToParticipant(updatedParticipantDTO);
+            const disciplines = await fetchParticipantDisciplines(updatedParticipant);
 
             setParticipants(
                 participants.map((p) =>
-                    p.id === updatedParticipant.id
-                        ? { ...updatedParticipant, disciplines }
-                        : p
+                    p.id === updatedParticipant.id ? { ...updatedParticipant, disciplines } : p
                 )
             );
+            toast.success("Participant updated successfully");
         } catch (error: unknown) {
             if (error instanceof Error) {
-                toast.error("Failed to update participant: " + error.message);
+                toast.error("Failed to update selectedParticipant: " + error.message);
             }
         }
     };
@@ -119,60 +102,52 @@ function useParticipants() {
     const remove = async (participant: Participant) => {
         try {
             await participantDataService.delete(participant.id);
-            setParticipants(
-                participants.filter((p) => p.id !== participant.id)
-            );
+            setParticipants(participants.filter((p) => p.id !== participant.id));
+            toast.success("Participant removed successfully");
         } catch (error: unknown) {
             if (error instanceof Error) {
-                toast.error("Failed to remove participant: " + error.message);
+                toast.error("Failed to remove selectedParticipant: " + error.message);
             }
         }
     };
 
-    const addDiscipline = async (
-        disciplineId: number,
-        participant: Participant
-    ) => {
+    const addDisciplines = async (disciplineIds: number[], participant: Participant) => {
         try {
-            const disciplines = await participantDataService.addDiscipline(
-                participant.id,
-                disciplineId
+            const promises = await Promise.all(
+                disciplineIds.map((id) => participantDataService.addDiscipline(participant.id, id))
             );
-
+            const disciplines = promises[promises.length - 1];
             setParticipants(
                 participants.map((p) =>
-                    p.id === participant.id
-                        ? { ...participant, disciplines }
-                        : p
+                    p.id === participant.id ? { ...participant, disciplines } : p
                 )
             );
+            toast.success("Disciplines added successfully");
         } catch (error: unknown) {
             if (error instanceof Error) {
-                toast.error("Failed to add discipline: " + error.message);
+                toast.error("Failed to add disciplines: " + error.message);
             }
         }
     };
 
-    const removeDiscipline = async (
-        disciplineId: number,
-        participant: Participant
-    ) => {
+    const removeDisciplines = async (disciplineIds: number[], participant: Participant) => {
         try {
-            const disciplines = await participantDataService.removeDiscipline(
-                participant.id,
-                disciplineId
+            const promises = await Promise.all(
+                disciplineIds.map((id) =>
+                    participantDataService.removeDiscipline(participant.id, id)
+                )
             );
+            const disciplines = promises[promises.length - 1];
 
             setParticipants(
                 participants.map((p) =>
-                    p.id === participant.id
-                        ? { ...participant, disciplines }
-                        : p
+                    p.id === participant.id ? { ...participant, disciplines } : p
                 )
             );
+            toast.success("Disciplines removed successfully");
         } catch (error: unknown) {
             if (error instanceof Error) {
-                toast.error("Failed to remove discipline: " + error.message);
+                toast.error("Failed to remove disciplines: " + error.message);
             }
         }
     };
@@ -182,8 +157,8 @@ function useParticipants() {
         create,
         update,
         remove,
-        addDiscipline,
-        removeDiscipline,
+        addDisciplines,
+        removeDisciplines,
         isLoading
     };
 }
