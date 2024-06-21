@@ -5,7 +5,7 @@ function formatMilliseconds(timeInMs: number): string {
   const milliseconds = timeInMs % 1000;
 
   if (hours === 0 && minutes === 0) {
-    return `${seconds.toString().padStart(2, "0")},${milliseconds.toString().substring(0, 2)}s`;
+    return `${seconds.toString().padStart(2, "0")},${milliseconds.toString().padStart(3, "0").substring(0, 2)}s`;
   }
   if (hours === 0) {
     return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")},${milliseconds.toString().substring(0, 2)}`;

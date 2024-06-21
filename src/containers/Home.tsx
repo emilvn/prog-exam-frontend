@@ -21,7 +21,7 @@ function LatestResults({ results, participants, disciplines }: LatestResultsProp
   const sortedResults = results.sort((a, b) => b.date.getTime() - a.date.getTime());
   return (
     <div className={"flex flex-col gap-4 w-80 shadow-lg h-fit pb-3"}>
-      <h2 className="text-2xl font-semibold bg-sky-500 rounded-t-lg p-2 text-white text-center">
+      <h2 className="text-2xl font-semibold bg-sky-500 rounded-t p-2 text-white text-center">
         Seneste Resultater
       </h2>
       <div className={"p-2"}>

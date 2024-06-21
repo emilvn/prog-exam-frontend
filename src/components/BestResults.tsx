@@ -30,7 +30,7 @@ function BestResults() {
 
   return (
     <div className={"flex flex-col gap-4 min-w-80 shadow-lg h-fit pb-3"}>
-      <h2 className="text-2xl font-semibold bg-sky-500 rounded-t-lg p-2 text-white text-center">
+      <h2 className="text-2xl font-semibold bg-sky-500 rounded-t p-2 text-white text-center">
         Bedste Resultater
       </h2>
       <ShowIf condition={resultsLoading || participantsLoading || disciplinesLoading}>
