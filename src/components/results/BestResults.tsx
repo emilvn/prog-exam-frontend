@@ -6,7 +6,7 @@ import useResults from "../../hooks/useResults.ts";
 import useParticipants from "../../hooks/useParticipants.ts";
 import useDisciplines from "../../hooks/useDisciplines.ts";
 import { LoadingSpinner } from "../generic/loading.tsx";
-import ShowIf from "../generic/ShowIf.tsx";
+import ShowIf from "../generic/wrappers/ShowIf.tsx";
 
 function BestResults() {
   const { results, isLoading: resultsLoading } = useResults();

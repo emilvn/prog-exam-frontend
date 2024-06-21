@@ -91,7 +91,7 @@ function useResults() {
       );
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error("Failed to update result: " + error.message);
+        toast.error("Failed to update value: " + error.message);
       }
     }
   };
@@ -102,7 +102,7 @@ function useResults() {
       setResults(results.filter((r) => r.id !== result.id));
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error("Failed to delete result: " + error.message);
+        toast.error("Failed to delete value: " + error.message);
       }
     }
   };

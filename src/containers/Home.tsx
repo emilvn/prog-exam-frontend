@@ -7,7 +7,7 @@ import { Result } from "../types/results.types.ts";
 import { ParticipantWithDisciplines } from "../types/participants.types.ts";
 import { formatResult } from "../helpers/resultHelpers.ts";
 import { formatDate } from "../utils/dateUtils.ts";
-import ShowIf from "../components/generic/ShowIf.tsx";
+import ShowIf from "../components/generic/wrappers/ShowIf.tsx";
 import { LoadingSpinner } from "../components/generic/loading.tsx";
 import { getAgeGroup } from "../helpers/participantHelpers.ts";
 import ResultFilter from "../components/results/ResultFilter.tsx";

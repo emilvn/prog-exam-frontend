@@ -1,8 +1,8 @@
 import useDisciplines from "../hooks/useDisciplines.ts";
 import { LoadingSpinner } from "../components/generic/loading.tsx";
 import { Discipline } from "../types/disciplines.types.ts";
-import Modal from "../components/generic/Modal.tsx";
-import ShowIf from "../components/generic/ShowIf.tsx";
+import Modal from "../components/generic/wrappers/Modal.tsx";
+import ShowIf from "../components/generic/wrappers/ShowIf.tsx";
 import {
   formatResult,
   getBestResultByDisciplineAndGender,

@@ -7,165 +7,14 @@ import { Result, ResultDTO, ResultType } from "../types/results.types.ts";
 import { ParticipantWithDisciplines } from "../types/participants.types.ts";
 import { getResultTypeStringShort } from "../helpers/resultHelpers.ts";
 import { getAge } from "../utils/dateUtils.ts";
-import ShowIf from "../components/generic/ShowIf.tsx";
+import ShowIf from "../components/generic/wrappers/ShowIf.tsx";
 import { LoadingSpinner } from "../components/generic/loading.tsx";
-import Modal from "../components/generic/Modal.tsx";
+import Modal from "../components/generic/wrappers/Modal.tsx";
 import { MdClose, MdKeyboardArrowDown } from "react-icons/md";
 import ResultFilter from "../components/results/ResultFilter.tsx";
 import ResultList from "../components/results/ResultList.tsx";
-
-interface DistanceInputProps {
-  result: number;
-  onResultChange: (result: number) => void;
-}
-
-function DistanceInput({ result, onResultChange }: DistanceInputProps) {
-  const [centimetres, setCentimetres] = useState<number>(0);
-  const [metres, setMetres] = useState<number>(0);
-
-  useEffect(() => {
-    setCentimetres(result % 100);
-    setMetres(Math.floor(result / 100));
-  }, []);
-
-  useEffect(() => {
-    onResultChange(metres * 100 + centimetres);
-  }, [metres, centimetres]);
-
-  return (
-    <div className={"flex gap-1"}>
-      <input
-        type="number"
-        value={metres}
-        onChange={(e) => {
-          if (isNaN(Number(e.target.value))) {
-            setMetres(0);
-            return;
-          }
-          if (Number(e.target.value) < 0) {
-            setMetres(0);
-            return;
-          }
-          setMetres(Number(e.target.value));
-        }}
-        className={"border rounded w-10 text-center"}
-      />
-      <span>m</span>
-      <input
-        type="number"
-        value={centimetres}
-        onChange={(e) => {
-          if (isNaN(Number(e.target.value))) {
-            setCentimetres(0);
-            return;
-          }
-          if (Number(e.target.value) < 0) {
-            setCentimetres(0);
-            return;
-          }
-          setCentimetres(Number(e.target.value));
-        }}
-        className={"border rounded w-10 text-center"}
-      />
-      <span>cm</span>
-    </div>
-  );
-}
-
-interface TimeResultInputProps {
-  result: number;
-  onResultChange: (result: number) => void;
-}
-
-function TimeResultInput({ result, onResultChange }: TimeResultInputProps) {
-  const [hours, setHours] = useState<number>(0);
-  const [minutes, setMinutes] = useState<number>(0);
-  const [seconds, setSeconds] = useState<number>(0);
-  const [milliseconds, setMilliseconds] = useState<number>(0);
-
-  useEffect(() => {
-    setHours(Math.floor(result / 3600000));
-    setMinutes(Math.floor((result % 3600000) / 60000));
-    setSeconds(Math.floor((result % 60000) / 1000));
-    setMilliseconds(result % 1000);
-  }, []);
-
-  useEffect(() => {
-    onResultChange(hours * 3600000 + minutes * 60000 + seconds * 1000 + milliseconds);
-  }, [hours, minutes, seconds, milliseconds]);
-
-  return (
-    <div className={"flex gap-2 w-56"}>
-      <input
-        type="number"
-        value={hours}
-        onChange={(e) => {
-          if (isNaN(Number(e.target.value))) {
-            setHours(0);
-            return;
-          }
-          if (Number(e.target.value) < 0) {
-            setHours(0);
-            return;
-          }
-          setHours(Number(e.target.value));
-        }}
-        className={"border rounded w-10 text-center"}
-      />
-      <span>:</span>
-      <input
-        type="number"
-        value={minutes}
-        onChange={(e) => {
-          if (isNaN(Number(e.target.value))) {
-            setMinutes(0);
-            return;
-          }
-          if (Number(e.target.value) < 0) {
-            setMinutes(0);
-            return;
-          }
-          setMinutes(Number(e.target.value));
-        }}
-        className={"border rounded w-10 text-center"}
-      />
-      <span>:</span>
-      <input
-        type="number"
-        value={seconds}
-        onChange={(e) => {
-          if (isNaN(Number(e.target.value))) {
-            setSeconds(0);
-            return;
-          }
-          if (Number(e.target.value) < 0) {
-            setSeconds(0);
-            return;
-          }
-          setSeconds(Number(e.target.value));
-        }}
-        className={"border rounded w-10 text-center"}
-      />
-      <span>,</span>
-      <input
-        type="number"
-        value={milliseconds}
-        onChange={(e) => {
-          if (isNaN(Number(e.target.value))) {
-            setMilliseconds(0);
-            return;
-          }
-          if (Number(e.target.value) < 0) {
-            setMilliseconds(0);
-            return;
-          }
-          setMilliseconds(Number(e.target.value));
-        }}
-        className={"border rounded w-10 text-center"}
-      />
-    </div>
-  );
-}
+import DistanceInput from "../components/generic/inputs/DistanceInput.tsx";
+import TimeResultInput from "../components/generic/inputs/TimeInput.tsx";
 
 interface ResultModalProps {
   onClose: () => void;
@@ -406,11 +255,11 @@ function ResultModal({
                               {selectedDiscipline.resultType ===
                                 ResultType.TIME_IN_MILLISECONDS && (
                                 <TimeResultInput
-                                  result={
+                                  value={
                                     newResults.find((r) => r.participantId === participant.id)
                                       ?.result ?? 0
                                   }
-                                  onResultChange={(res) =>
+                                  onValueChange={(res) =>
                                     setNewResults((prev) =>
                                       prev.map((r) =>
                                         r.participantId === participant.id
@@ -453,11 +302,11 @@ function ResultModal({
                                 selectedDiscipline.resultType ===
                                   ResultType.LENGTH_IN_CENTIMETRES) && (
                                 <DistanceInput
-                                  result={
+                                  value={
                                     newResults.find((r) => r.participantId === participant.id)
                                       ?.result ?? 0
                                   }
-                                  onResultChange={(res) =>
+                                  onValueChange={(res) =>
                                     setNewResults((prev) =>
                                       prev.map((r) =>
                                         r.participantId === participant.id
@@ -500,8 +349,8 @@ function ResultModal({
                 </span>
                 {selectedDiscipline.resultType === ResultType.TIME_IN_MILLISECONDS && (
                   <TimeResultInput
-                    result={result}
-                    onResultChange={(result) => setResult(result)}
+                    value={result}
+                    onValueChange={(result) => setResult(result)}
                   />
                 )}
                 {selectedDiscipline.resultType === ResultType.POINTS && (
@@ -516,8 +365,8 @@ function ResultModal({
                   selectedDiscipline.resultType === ResultType.HEIGHT_IN_CENTIMETRES ||
                   selectedDiscipline.resultType === ResultType.LENGTH_IN_CENTIMETRES) && (
                   <DistanceInput
-                    result={result}
-                    onResultChange={(result) => setResult(result)}
+                    value={result}
+                    onValueChange={(result) => setResult(result)}
                   />
                 )}
               </label>

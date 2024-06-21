@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./containers/Home.tsx";
-import PageLayout from "./components/generic/PageLayout.tsx";
+import PageLayout from "./components/generic/wrappers/PageLayout.tsx";
 import { useState } from "react";
 import Participants from "./containers/Participants.tsx";
 import Disciplines from "./containers/Disciplines.tsx";
