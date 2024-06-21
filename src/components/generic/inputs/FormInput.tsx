@@ -6,6 +6,7 @@ interface FormInputProps {
   type: HTMLInputTypeAttribute | undefined;
   value: string | number | readonly string[] | undefined;
 }
+
 function FormInput({ label, onChange, type, value }: FormInputProps) {
   return (
     <label className={"flex flex-col"}>
