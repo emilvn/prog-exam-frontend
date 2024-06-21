@@ -71,28 +71,40 @@ function NavBar({ search, setSearch }: NavBarProps) {
       />
       <NavButton
         to="/"
-        onClick={() => setSelected("/")}
+        onClick={() => {
+          setSelected("/");
+          setSearch("");
+        }}
         selected={selected === "/"}
       >
         Hjem
       </NavButton>
       <NavButton
         to="/participants"
-        onClick={() => setSelected("/participants")}
+        onClick={() => {
+          setSelected("/participants");
+          setSearch("");
+        }}
         selected={selected === "/participants"}
       >
         Deltagere
       </NavButton>
       <NavButton
         to="/disciplines"
-        onClick={() => setSelected("/disciplines")}
+        onClick={() => {
+          setSelected("/disciplines");
+          setSearch("");
+        }}
         selected={selected === "/disciplines"}
       >
         Discipliner
       </NavButton>
       <NavButton
         to={"/results"}
-        onClick={() => setSelected("/results")}
+        onClick={() => {
+          setSelected("/results");
+          setSearch("");
+        }}
         selected={selected === "/results"}
       >
         Resultater

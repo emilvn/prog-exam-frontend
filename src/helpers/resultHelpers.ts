@@ -85,10 +85,29 @@ function getBestResultByDisciplineAndGender(
   return { bestResult, participant };
 }
 
+function isDistanceResult(resultType: ResultType) {
+  return (
+    resultType === ResultType.DISTANCE_IN_CENTIMETRES ||
+    resultType === ResultType.HEIGHT_IN_CENTIMETRES ||
+    resultType === ResultType.LENGTH_IN_CENTIMETRES
+  );
+}
+
+function isTimeResult(resultType: ResultType) {
+  return resultType === ResultType.TIME_IN_MILLISECONDS;
+}
+
+function isPointsResult(resultType: ResultType) {
+  return resultType === ResultType.POINTS;
+}
+
 export {
   sortResultsBestToWorst,
   formatResult,
   getResultTypeStringLong,
   getBestResultByDisciplineAndGender,
-  getResultTypeStringShort
+  getResultTypeStringShort,
+  isDistanceResult,
+  isTimeResult,
+  isPointsResult
 };

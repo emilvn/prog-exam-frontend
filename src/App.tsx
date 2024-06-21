@@ -27,15 +27,30 @@ function App() {
           />
           <Route
             path={"/participants"}
-            element={<Participants search={search} />}
+            element={
+              <>
+                {search === "" && <Participants />}
+                {search !== "" && <Participants search={search} />}
+              </>
+            }
           />
           <Route
             path={"/disciplines"}
-            element={<Disciplines />}
+            element={
+              <>
+                {search === "" && <Disciplines />}
+                {search !== "" && <Participants search={search} />}
+              </>
+            }
           />
           <Route
             path={"/results"}
-            element={<Results />}
+            element={
+              <>
+                {search === "" && <Results />}
+                {search !== "" && <Participants search={search} />}
+              </>
+            }
           />
         </Routes>
       </PageLayout>

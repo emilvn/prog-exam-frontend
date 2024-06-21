@@ -1,14 +1,150 @@
-import { Result, ResultDTO, ResultType } from "../../../types/results.types.ts";
+import { Result, ResultDTO } from "../../../types/results.types.ts";
 import { ParticipantWithDisciplines } from "../../../types/participants.types.ts";
 import { Discipline } from "../../../types/disciplines.types.ts";
-import { FormEvent, useEffect, useState } from "react";
+import { Dispatch, FormEvent, SetStateAction, useEffect, useState } from "react";
 import Modal from "../../generic/wrappers/Modal.tsx";
-import { MdClose, MdKeyboardArrowDown } from "react-icons/md";
-import { getResultTypeStringShort } from "../../../helpers/resultHelpers.ts";
+import { MdClose } from "react-icons/md";
+import {
+  getResultTypeStringShort,
+  isDistanceResult,
+  isPointsResult,
+  isTimeResult
+} from "../../../helpers/resultHelpers.ts";
 import TimeResultInput from "../../generic/inputs/TimeInput.tsx";
 import DistanceInput from "../../generic/inputs/DistanceInput.tsx";
 import ShowIf from "../../generic/wrappers/ShowIf.tsx";
 import DeleteConfirmationModal from "../../generic/modals/DeleteConfirmationModal.tsx";
+import Button from "../../generic/Button.tsx";
+import MultiSelect from "../../generic/MultiSelect.tsx";
+
+interface MultipleParticipantResultInputProps {
+  participants: ParticipantWithDisciplines[];
+  date: string;
+  selectedDiscipline: Discipline;
+  disciplines: Discipline[];
+  createMany: (results: ResultDTO[]) => void;
+  newResults: ResultDTO[];
+  setNewResults: Dispatch<SetStateAction<ResultDTO[]>>;
+}
+
+function MultipleParticipantResultInput({
+  participants,
+  setNewResults,
+  date,
+  selectedDiscipline
+}: MultipleParticipantResultInputProps) {
+  const [filteredParticipants, setFilteredParticipants] = useState<ParticipantWithDisciplines[]>(
+    participants.filter((p) => p.disciplines.some((d) => d.id === selectedDiscipline?.id))
+  );
+  const [selectedParticipantIds, setSelectedParticipantIds] = useState<number[]>([]);
+  const [resultValues, setResultValues] = useState<Map<number, number>>(new Map());
+
+  useEffect(() => {
+    setFilteredParticipants(
+      participants.filter((p) => p.disciplines.some((d) => d.id === selectedDiscipline?.id))
+    );
+  }, [participants, selectedDiscipline]);
+
+  useEffect(() => {
+    if (selectedDiscipline && selectedParticipantIds.length > 0) {
+      setNewResults(
+        selectedParticipantIds.map((participantId) => ({
+          participantId: participantId,
+          disciplineId: selectedDiscipline.id ?? -1,
+          resultType: selectedDiscipline.resultType,
+          result: resultValues.get(participantId) ?? 0,
+          date: new Date(date).toISOString()
+        }))
+      );
+    }
+  }, [selectedParticipantIds, selectedDiscipline, date, resultValues]);
+
+  return (
+    <div className={"w-96"}>
+      <span>Vælg Deltagere</span>
+      <MultiSelect
+        options={filteredParticipants.map((p) => ({ label: p.name, value: p.id }))}
+        selectedIds={selectedParticipantIds}
+        setSelectedIds={setSelectedParticipantIds}
+        placeholder={"Vælg deltagere"}
+      />
+      {selectedParticipantIds.length > 0 && (
+        <div className={"w-96 mt-1 max-h-56 overflow-y-auto"}>
+          <table className={"w-full"}>
+            <thead className={"text-left"}>
+              <tr>
+                <th>Deltager</th>
+                <th>
+                  <span className={"flex items-center gap-1 select-none"}>
+                    Resultat
+                    <span className={"text-xs text-gray-700"}>
+                      ({getResultTypeStringShort(selectedDiscipline?.resultType)})
+                    </span>
+                  </span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {selectedParticipantIds.map((participantId) => (
+                <tr
+                  key={participantId}
+                  className={"text-sm"}
+                >
+                  <td>{participants.find((p) => p.id === participantId)?.name}</td>
+                  <td className={"flex items-center"}>
+                    <ShowIf condition={isTimeResult(selectedDiscipline.resultType)}>
+                      <TimeResultInput
+                        value={resultValues.get(participantId) ?? 0}
+                        onValueChange={(res) =>
+                          setResultValues(new Map(resultValues.set(participantId, res)))
+                        }
+                      />
+                    </ShowIf>
+                    <ShowIf condition={isPointsResult(selectedDiscipline.resultType)}>
+                      <input
+                        type="number"
+                        value={resultValues.get(participantId) ?? 0}
+                        onChange={(e) =>
+                          setResultValues(
+                            new Map(resultValues.set(participantId, Number(e.target.value)))
+                          )
+                        }
+                        className={"border p-2 rounded"}
+                      />
+                    </ShowIf>
+                    <ShowIf condition={isDistanceResult(selectedDiscipline.resultType)}>
+                      <DistanceInput
+                        value={resultValues.get(participantId) ?? 0}
+                        onValueChange={(res) =>
+                          setResultValues(new Map(resultValues.set(participantId, res)))
+                        }
+                      />
+                    </ShowIf>
+                    <MdClose
+                      className={
+                        "cursor-pointer bg-red-500 hover:bg-red-300 rounded text-white inline-block h-5 w-5 ml-1"
+                      }
+                      onClick={() => {
+                        setSelectedParticipantIds(
+                          selectedParticipantIds.filter((id) => id !== participantId)
+                        );
+                        setResultValues((prev) => {
+                          const newMap = new Map(prev);
+                          newMap.delete(participantId);
+                          return newMap;
+                        });
+                      }}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface ResultModalProps {
   onClose: () => void;
@@ -30,16 +166,12 @@ function ResultModal({
   selectedResult
 }: ResultModalProps) {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
-  const [search, setSearch] = useState<string>("");
   const [selectedParticipant, setSelectedParticipant] = useState<
     ParticipantWithDisciplines | undefined
   >(
     selectedResult?.participantId
       ? participants.find((p) => p.id === selectedResult.participantId)
       : undefined
-  );
-  const [selectedParticipants, setSelectedParticipants] = useState<ParticipantWithDisciplines[]>(
-    []
   );
 
   const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline | undefined>(
@@ -49,33 +181,8 @@ function ResultModal({
   );
   const [result, setResult] = useState<number>(selectedResult?.result ?? 0);
   const [date, setDate] = useState<string>(selectedResult?.date.toISOString().split("T")[0] ?? "");
-  const [filteredParticipants, setFilteredParticipants] = useState<ParticipantWithDisciplines[]>(
-    participants.filter((p) => p.disciplines.some((d) => d.id === selectedDiscipline?.id))
-  );
-  const [showOptions, setShowOptions] = useState<boolean>(false);
+
   const [newResults, setNewResults] = useState<ResultDTO[]>([]);
-
-  useEffect(() => {
-    setFilteredParticipants(
-      participants
-        .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
-        .filter((p) => p.disciplines.some((d) => d.id === selectedDiscipline?.id))
-    );
-  }, [search, participants, selectedDiscipline]);
-
-  useEffect(() => {
-    if (selectedDiscipline && selectedParticipants.length > 0) {
-      setNewResults(
-        selectedParticipants.map((participant) => ({
-          participantId: participant.id,
-          disciplineId: selectedDiscipline?.id ?? -1,
-          resultType: selectedDiscipline?.resultType ?? ResultType.TIME_IN_MILLISECONDS,
-          result: 0,
-          date: new Date(date).toISOString()
-        }))
-      );
-    }
-  }, [selectedParticipants, selectedDiscipline, date]);
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -135,7 +242,7 @@ function ResultModal({
         </label>
         {selectedDiscipline && (
           <>
-            {selectedResult && (
+            <ShowIf condition={!!selectedResult}>
               <label className={"flex flex-col gap-2"}>
                 <span>Vælg Deltager</span>
                 <select
@@ -160,179 +267,18 @@ function ResultModal({
                     ))}
                 </select>
               </label>
-            )}
-            {!selectedResult && (
-              <div className={"w-96"}>
-                <span>Vælg Deltagere</span>
-                <div className={"w-80 relative border rounded-lg py-2"}>
-                  <div className={"px-4 flex items-center justify-between"}>
-                    <input
-                      placeholder={"Vælg Deltagere"}
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      className={"focus:ring-transparent outline-none"}
-                      onClick={() => setShowOptions(true)}
-                    />
-                    <div
-                      className={"cursor-pointer h-6 w-6 flex justify-center items-center"}
-                      onClick={() => setShowOptions(!showOptions)}
-                    >
-                      <MdKeyboardArrowDown />
-                    </div>
-                  </div>
-                  {showOptions && (
-                    <div
-                      className={
-                        "flex flex-col absolute bg-white border rounded-b z-50 w-full max-h-48 overflow-y-auto"
-                      }
-                    >
-                      {filteredParticipants.length > 0 &&
-                        filteredParticipants.map((participant) => {
-                          const isParticipantSelected = selectedParticipants.some(
-                            (p) => p.id === participant.id
-                          );
-                          return (
-                            <button
-                              key={participant.id}
-                              className={
-                                "border-b px-4 py-2 hover:bg-sky-300 flex justify-between font-semibold" +
-                                (isParticipantSelected ? " bg-sky-500 text-white" : "")
-                              }
-                              onClick={() => {
-                                if (isParticipantSelected) {
-                                  setSelectedParticipants((prev) =>
-                                    prev.filter((p) => p.id !== participant.id)
-                                  );
-                                } else {
-                                  setSelectedParticipants((prev) => [...prev, participant]);
-                                }
-                              }}
-                              type={"button"}
-                            >
-                              {participant.name}
-                              {isParticipantSelected && <MdClose className={"inline-block"} />}
-                            </button>
-                          );
-                        })}
-                      {filteredParticipants.length === 0 && (
-                        <div className={"px-4 py-2 italic text-gray-500"}>
-                          Der blev ikke fundet nogen deltagere
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-                {selectedParticipants.length > 0 && (
-                  <div className={"w-96 mt-1 max-h-56 overflow-y-auto"}>
-                    <table className={"w-full"}>
-                      <thead className={"text-left"}>
-                        <tr>
-                          <th>Deltager</th>
-                          <th>
-                            <span className={"flex items-center gap-1 select-none"}>
-                              Resultat
-                              <span className={"text-xs text-gray-700"}>
-                                ({getResultTypeStringShort(selectedDiscipline.resultType)})
-                              </span>
-                            </span>
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {selectedParticipants.map((participant) => (
-                          <tr
-                            key={participant.id}
-                            className={"text-sm"}
-                          >
-                            <td>{participant.name}</td>
-                            <td className={"flex items-center"}>
-                              {selectedDiscipline.resultType ===
-                                ResultType.TIME_IN_MILLISECONDS && (
-                                <TimeResultInput
-                                  value={
-                                    newResults.find((r) => r.participantId === participant.id)
-                                      ?.result ?? 0
-                                  }
-                                  onValueChange={(res) =>
-                                    setNewResults((prev) =>
-                                      prev.map((r) =>
-                                        r.participantId === participant.id
-                                          ? {
-                                              ...r,
-                                              result: res
-                                            }
-                                          : r
-                                      )
-                                    )
-                                  }
-                                />
-                              )}
-                              {selectedDiscipline.resultType === ResultType.POINTS && (
-                                <input
-                                  type="number"
-                                  value={
-                                    newResults.find((r) => r.participantId === participant.id)
-                                      ?.result ?? 0
-                                  }
-                                  onChange={(e) =>
-                                    setNewResults((prev) =>
-                                      prev.map((r) =>
-                                        r.participantId === participant.id
-                                          ? {
-                                              ...r,
-                                              result: Number(e.target.value)
-                                            }
-                                          : r
-                                      )
-                                    )
-                                  }
-                                  className={"border p-2 rounded"}
-                                />
-                              )}
-                              {(selectedDiscipline.resultType ===
-                                ResultType.DISTANCE_IN_CENTIMETRES ||
-                                selectedDiscipline.resultType ===
-                                  ResultType.HEIGHT_IN_CENTIMETRES ||
-                                selectedDiscipline.resultType ===
-                                  ResultType.LENGTH_IN_CENTIMETRES) && (
-                                <DistanceInput
-                                  value={
-                                    newResults.find((r) => r.participantId === participant.id)
-                                      ?.result ?? 0
-                                  }
-                                  onValueChange={(res) =>
-                                    setNewResults((prev) =>
-                                      prev.map((r) =>
-                                        r.participantId === participant.id
-                                          ? {
-                                              ...r,
-                                              result: res
-                                            }
-                                          : r
-                                      )
-                                    )
-                                  }
-                                />
-                              )}
-                              <MdClose
-                                className={
-                                  "cursor-pointer bg-red-500 hover:bg-red-300 rounded text-white inline-block h-5 w-5 ml-1"
-                                }
-                                onClick={() => {
-                                  setSelectedParticipants((prev) =>
-                                    prev.filter((p) => p.id !== participant.id)
-                                  );
-                                }}
-                              />
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            )}
+            </ShowIf>
+            <ShowIf condition={!selectedResult && date !== ""}>
+              <MultipleParticipantResultInput
+                participants={participants}
+                disciplines={disciplines}
+                selectedDiscipline={selectedDiscipline}
+                createMany={createMany}
+                newResults={newResults}
+                setNewResults={setNewResults}
+                date={date}
+              />
+            </ShowIf>
             {selectedResult && (
               <label className={"flex flex-col gap-2"}>
                 <span className={"flex items-center gap-2 select-none"}>
@@ -341,61 +287,48 @@ function ResultModal({
                     ({getResultTypeStringShort(selectedDiscipline.resultType)})
                   </span>
                 </span>
-                {selectedDiscipline.resultType === ResultType.TIME_IN_MILLISECONDS && (
+                <ShowIf condition={isTimeResult(selectedDiscipline.resultType)}>
                   <TimeResultInput
                     value={result}
                     onValueChange={(result) => setResult(result)}
                   />
-                )}
-                {selectedDiscipline.resultType === ResultType.POINTS && (
+                </ShowIf>
+                <ShowIf condition={isPointsResult(selectedResult.resultType)}>
                   <input
                     type="number"
                     value={result}
                     onChange={(e) => setResult(Number(e.target.value))}
                     className={"border p-2 rounded"}
                   />
-                )}
-                {(selectedDiscipline.resultType === ResultType.DISTANCE_IN_CENTIMETRES ||
-                  selectedDiscipline.resultType === ResultType.HEIGHT_IN_CENTIMETRES ||
-                  selectedDiscipline.resultType === ResultType.LENGTH_IN_CENTIMETRES) && (
+                </ShowIf>
+                <ShowIf condition={isDistanceResult(selectedDiscipline.resultType)}>
                   <DistanceInput
                     value={result}
                     onValueChange={(result) => setResult(result)}
                   />
-                )}
+                </ShowIf>
               </label>
             )}
           </>
         )}
         <div className={"flex justify-end items-center gap-2"}>
-          <button
-            className={
-              "border rounded-lg bg-gray-500 hover:bg-gray-300 text-white px-4 py-2 font-semibold"
-            }
-            type="button"
+          <Button
+            text={"Luk"}
             onClick={onClose}
-          >
-            Luk
-          </button>
-          {selectedResult && (
-            <button
-              className={
-                "border rounded-lg bg-red-500 hover:bg-red-300 text-white px-4 py-2 font-semibold"
-              }
-              type="button"
+            color={"gray"}
+          />
+          <ShowIf condition={!!selectedResult}>
+            <Button
+              text={"Slet"}
+              color={"red"}
               onClick={() => setShowDeleteConfirmation(true)}
-            >
-              Slet
-            </button>
-          )}
-          <button
-            className={
-              "border rounded-lg bg-sky-500 hover:bg-sky-300 text-white px-4 py-2 font-semibold"
-            }
-            type="submit"
-          >
-            Gem
-          </button>
+            />
+          </ShowIf>
+          <Button
+            text={"Gem"}
+            color={"green"}
+            type={"submit"}
+          />
         </div>
       </form>
       <ShowIf condition={showDeleteConfirmation}>
