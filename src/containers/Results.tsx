@@ -2,7 +2,7 @@ import useResults from "../hooks/useResults.ts";
 import useParticipants from "../hooks/useParticipants.ts";
 import useDisciplines from "../hooks/useDisciplines.ts";
 import { Discipline } from "../types/disciplines.types.ts";
-import { Dispatch, FormEvent, SetStateAction, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Result, ResultDTO, ResultType } from "../types/results.types.ts";
 import { ParticipantWithDisciplines } from "../types/participants.types.ts";
 import {
@@ -15,6 +15,7 @@ import ShowIf from "../components/ShowIf.tsx";
 import { LoadingSpinner } from "../components/loading.tsx";
 import Modal from "../components/Modal.tsx";
 import { MdClose, MdKeyboardArrowDown } from "react-icons/md";
+import { ResultFilter } from "../components/ResultList.tsx";
 
 interface DistanceInputProps {
   result: number;
@@ -683,82 +684,6 @@ function ResultTable({ results, participants, disciplines, onResultSelect }: Res
   );
 }
 
-interface ResultFilterProps {
-  disciplines: Discipline[];
-  setSelectedDiscipline: Dispatch<SetStateAction<Discipline | undefined>>;
-  setSelectedGender: Dispatch<SetStateAction<string>>;
-  setSelectedAgeGroup: Dispatch<SetStateAction<string>>;
-  setShowResultModal: Dispatch<SetStateAction<boolean>>;
-}
-
-function ResultFilter({
-  disciplines,
-  setSelectedDiscipline,
-  setSelectedGender,
-  setSelectedAgeGroup,
-  setShowResultModal
-}: ResultFilterProps) {
-  return (
-    <div className={"p-4 flex flex-col gap-6"}>
-      <div className={"flex justify-between items-center"}>
-        <h2 className="text-2xl font-semibold">Resultater</h2>
-        <button
-          className="bg-green-500 text-white p-2 rounded hover:bg-green-600 transition-colors"
-          onClick={() => setShowResultModal(true)}
-        >
-          Tilføj resultat
-        </button>
-      </div>
-      <div className="flex gap-8 items-center">
-        <label className="flex flex-col w-56">
-          <span>Vælg Aldersgruppe</span>
-          <select
-            onChange={(e) => setSelectedAgeGroup(e.target.value)}
-            className="border p-2 rounded"
-          >
-            <option value={""}>Alle aldersgrupper</option>
-            <option value={"Børn"}>Børn</option>
-            <option value={"Unge"}>Unge</option>
-            <option value={"Junior"}>Junior</option>
-            <option value={"Voksne"}>Voksne</option>
-            <option value={"Senior"}>Senior</option>
-          </select>
-        </label>
-        <label className="flex flex-col w-56">
-          Vælg disciplin
-          <select
-            onChange={(e) =>
-              setSelectedDiscipline(disciplines.find((d) => d.id === parseInt(e.target.value)))
-            }
-            className="border p-2 rounded"
-          >
-            <option value={0}>Alle discipliner</option>
-            {disciplines.map((discipline) => (
-              <option
-                key={discipline.id}
-                value={discipline.id}
-              >
-                {discipline.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col w-56">
-          Vælg køn
-          <select
-            onChange={(e) => setSelectedGender(e.target.value)}
-            className="border p-2 rounded"
-          >
-            <option value={""}>Begge køn</option>
-            <option value={"M"}>Mænd</option>
-            <option value={"F"}>Kvinder</option>
-          </select>
-        </label>
-      </div>
-    </div>
-  );
-}
-
 function Results() {
   const { results, isLoading: resultsLoading, createMany, update, remove } = useResults();
   const { participants, isLoading: participantsLoading } = useParticipants();
@@ -830,13 +755,23 @@ function Results() {
       </ShowIf>
       <ShowIf condition={!isLoading}>
         <div className={"w-full"}>
-          <ResultFilter
-            disciplines={disciplines}
-            setSelectedDiscipline={setSelectedDiscipline}
-            setSelectedGender={setSelectedGender}
-            setSelectedAgeGroup={setSelectedAgeGroup}
-            setShowResultModal={setShowResultModal}
-          />
+          <div className={"p-4 flex flex-col gap-6"}>
+            <div className={"flex justify-between items-center"}>
+              <h2 className="text-2xl font-semibold">Resultater</h2>
+              <button
+                className="bg-green-500 text-white p-2 rounded hover:bg-green-600 transition-colors"
+                onClick={() => setShowResultModal(true)}
+              >
+                Tilføj resultat
+              </button>
+            </div>
+            <ResultFilter
+              disciplines={disciplines}
+              setSelectedDiscipline={setSelectedDiscipline}
+              setSelectedGender={setSelectedGender}
+              setSelectedAgeGroup={setSelectedAgeGroup}
+            />
+          </div>
           <ResultTable
             results={filteredResults}
             participants={filteredParticipants}
