@@ -19,6 +19,7 @@ import type { Result } from "../types/results.types.ts";
 import { TbDeviceWatchStats2 } from "react-icons/tb";
 import { formatResult } from "../helpers/resultHelpers.ts";
 import { formatDate } from "../utils/dateUtils.ts";
+import DeleteConfirmationModal from "../components/generic/modals/DeleteConfirmationModal.tsx";
 
 interface ParticipantResultModalProps {
   participant: ParticipantWithDisciplines;
@@ -406,37 +407,17 @@ function ParticipantModal({
           </button>
         </div>
       </form>
-      {showDeleteConfirmation && (
-        <Modal>
-          <h1 className={"text-2xl font-semibold"}>
-            Er du sikker på at du vil slette {selectedParticipant?.name}?
-          </h1>
-          <div className={"flex justify-end items-center gap-2"}>
-            <button
-              className={
-                "border rounded-lg bg-gray-500 hover:bg-gray-300 text-white px-4 py-2 font-semibold"
-              }
-              type="button"
-              onClick={() => setShowDeleteConfirmation(false)}
-            >
-              Nej
-            </button>
-            <button
-              className={
-                "border rounded-lg bg-red-500 hover:bg-red-300 text-white px-4 py-2 font-semibold"
-              }
-              type="button"
-              onClick={() => {
-                if (selectedParticipant) remove(selectedParticipant);
-                setShowDeleteConfirmation(false);
-                onClose();
-              }}
-            >
-              Ja
-            </button>
-          </div>
-        </Modal>
-      )}
+      <ShowIf condition={showDeleteConfirmation}>
+        <DeleteConfirmationModal
+          onClose={() => setShowDeleteConfirmation(false)}
+          onDelete={() => {
+            if (selectedParticipant) remove(selectedParticipant);
+            setShowDeleteConfirmation(false);
+            onClose();
+          }}
+          title={`Er du sikker på at du vil slette ${selectedParticipant?.name}?`}
+        />
+      </ShowIf>
     </Modal>
   );
 }
