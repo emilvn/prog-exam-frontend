@@ -1,12 +1,12 @@
-import { ParticipantWithDisciplines } from "../types/participants.types.ts";
+import { ParticipantWithDisciplines } from "../../types/participants.types.ts";
 import { useEffect, useState } from "react";
-import { getAgeGroup } from "../helpers/participantHelpers.ts";
-import { formatResult, getBestResultByDisciplineAndGender } from "../helpers/resultHelpers.ts";
-import useResults from "../hooks/useResults.ts";
-import useParticipants from "../hooks/useParticipants.ts";
-import useDisciplines from "../hooks/useDisciplines.ts";
-import { LoadingSpinner } from "./loading.tsx";
-import ShowIf from "./ShowIf.tsx";
+import { getAgeGroup } from "../../helpers/participantHelpers.ts";
+import { formatResult, getBestResultByDisciplineAndGender } from "../../helpers/resultHelpers.ts";
+import useResults from "../../hooks/useResults.ts";
+import useParticipants from "../../hooks/useParticipants.ts";
+import useDisciplines from "../../hooks/useDisciplines.ts";
+import { LoadingSpinner } from "../generic/loading.tsx";
+import ShowIf from "../generic/ShowIf.tsx";
 
 function BestResults() {
   const { results, isLoading: resultsLoading } = useResults();

@@ -6,13 +6,13 @@ import type {
   ParticipantWithDisciplines
 } from "../types/participants.types.ts";
 import { newParticipant } from "../types/participants.types.ts";
-import Modal from "../components/Modal.tsx";
+import Modal from "../components/generic/Modal.tsx";
 import { getAgeGroup, sortParticipants } from "../helpers/participantHelpers.ts";
 import { MdClose, MdEdit, MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 import useDisciplines from "../hooks/useDisciplines.ts";
 import type { Discipline } from "../types/disciplines.types.ts";
-import ShowIf from "../components/ShowIf.tsx";
-import { LoadingSpinner } from "../components/loading.tsx";
+import ShowIf from "../components/generic/ShowIf.tsx";
+import { LoadingSpinner } from "../components/generic/loading.tsx";
 import useResults from "../hooks/useResults.ts";
 import toast from "react-hot-toast";
 import type { Result } from "../types/results.types.ts";

@@ -5,12 +5,13 @@ import { Discipline } from "../types/disciplines.types.ts";
 import { useEffect, useState } from "react";
 import { Result } from "../types/results.types.ts";
 import { ParticipantWithDisciplines } from "../types/participants.types.ts";
-import { formatResult, sortResultsBestToWorst } from "../helpers/resultHelpers.ts";
+import { formatResult } from "../helpers/resultHelpers.ts";
 import { formatDate } from "../utils/dateUtils.ts";
-import ShowIf from "../components/ShowIf.tsx";
-import { LoadingSpinner } from "../components/loading.tsx";
+import ShowIf from "../components/generic/ShowIf.tsx";
+import { LoadingSpinner } from "../components/generic/loading.tsx";
 import { getAgeGroup } from "../helpers/participantHelpers.ts";
-import { ResultFilter } from "../components/ResultList.tsx";
+import ResultFilter from "../components/results/ResultFilter.tsx";
+import ResultList from "../components/results/ResultList.tsx";
 
 interface LatestResultsProps {
   results: Result[];
@@ -55,84 +56,6 @@ function LatestResults({ results, participants, disciplines }: LatestResultsProp
           </tbody>
         </table>
       </div>
-    </div>
-  );
-}
-
-interface DisciplineGroupProps {
-  discipline: Discipline;
-  results: Result[];
-  participants: ParticipantWithDisciplines[];
-}
-
-function DisciplineGroup({ discipline, results, participants }: DisciplineGroupProps) {
-  const sortedResults = sortResultsBestToWorst(results, discipline.resultType);
-  return (
-    <>
-      {sortedResults.length > 0 && (
-        <div>
-          <h2 className={"bg-sky-300 font-semibold text-white text-xl px-8 py-1"}>
-            {discipline.name}
-          </h2>
-          <table className="w-full">
-            <thead className="text-left">
-              <tr>
-                <th className="w-1/5">Resultat</th>
-                <th className="w-1/5">Navn</th>
-                <th className="w-1/5">Født</th>
-                <th className="w-1/5">Klub</th>
-                <th className="w-1/5">Dato</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedResults
-                .filter((result) => result.disciplineId === discipline.id)
-                .map((result) => {
-                  const participant = participants.find((p) => p.id === result.participantId);
-                  return (
-                    <tr key={result.id}>
-                      <td>{formatResult(result.result, result.resultType)}</td>
-                      <td>{participant?.name}</td>
-                      <td>{participant?.birthDate.getFullYear()}</td>
-                      <td>{participant?.club}</td>
-                      <td>{formatDate(result.date)}</td>
-                    </tr>
-                  );
-                })}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </>
-  );
-}
-
-interface RankingProps {
-  results: Result[];
-  participants: ParticipantWithDisciplines[];
-  disciplines: Discipline[];
-}
-
-function Ranking({ results, participants, disciplines }: RankingProps) {
-  const groupedResults = disciplines.map((discipline) => ({
-    discipline,
-    results: results.filter(
-      (result) =>
-        result.disciplineId === discipline.id &&
-        participants.find((p) => p.id === result.participantId)
-    )
-  }));
-
-  return (
-    <div className={"flex flex-col gap-4"}>
-      {groupedResults.map(({ discipline, results }) => (
-        <DisciplineGroup
-          key={discipline.id}
-          discipline={discipline}
-          results={results}
-          participants={participants}
-        />
-      ))}
     </div>
   );
 }
@@ -200,7 +123,7 @@ function Home() {
               setSelectedAgeGroup={setSelectedAgeGroup}
             />
           </div>
-          <Ranking
+          <ResultList
             results={filteredResults}
             participants={filteredParticipants}
             disciplines={disciplines}

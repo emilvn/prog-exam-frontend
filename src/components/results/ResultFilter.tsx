@@ -1,4 +1,4 @@
-import { Discipline } from "../types/disciplines.types.ts";
+import { Discipline } from "../../types/disciplines.types.ts";
 import { Dispatch, SetStateAction } from "react";
 
 interface ResultFilterProps {
@@ -64,4 +64,4 @@ function ResultFilter({
   );
 }
 
-export { ResultFilter };
+export default ResultFilter;

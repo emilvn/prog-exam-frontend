@@ -1,7 +1,7 @@
 import type { Dispatch, PropsWithChildren, SetStateAction } from "react";
 import { Toaster } from "react-hot-toast";
 import NavBar from "./NavBar.tsx";
-import BestResults from "./BestResults.tsx";
+import BestResults from "../results/BestResults.tsx";
 
 interface PageLayoutProps extends PropsWithChildren {
   search: string;
